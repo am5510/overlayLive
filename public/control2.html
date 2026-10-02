@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="styles.css?v=15" />
+    <title>2 Live Techno</title>
+  </head>
+  <body data-channel="2">
+    <main class="dashboard">
+      <header class="topbar">
+        <span class="brand-badge"><span>2</span></span>
+        <span>Live Techno</span>
+        <button type="button" class="live-toggle on" id="liveToggleBtn" aria-pressed="true" title="เปิด/ปิดการส่งสัญญาณไปหน้า Overlay ช่อง 2">
+          <span class="live-toggle-label" id="liveToggleLabel">ON</span>
+          <span class="live-toggle-knob"></span>
+        </button>
+      </header>
+      <div class="grid">
+        <section class="preview-col">
+          <div class="preview">
+            <div class="corner-logo hidden" id="previewCornerLogo" aria-hidden="true" style="transition:none">
+              <img id="previewCornerLogoImage" alt="Corner logo" />
+            </div>
+            <div class="timer-overlay hidden no-transition" id="previewTimerOverlay" aria-hidden="true">
+              <svg class="timer-ring-svg" viewBox="0 0 300 300">
+                <defs>
+                  <linearGradient id="previewTimerRingGrad" x1="1" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#33f0ff" />
+                    <stop offset="55%" stop-color="#00b7ff" />
+                    <stop offset="100%" stop-color="#0048ff" />
+                  </linearGradient>
+                </defs>
+                <circle class="timer-ring-track" cx="150" cy="150" r="124" />
+                <circle class="timer-ring-progress" id="previewTimerRingProgress" cx="150" cy="150" r="124" style="stroke: url(#previewTimerRingGrad);" />
+              </svg>
+              <div class="timer-inner">
+                <div class="timer-digits" id="previewTimerDigits">10:00</div>
+                <div class="timer-sublabel" id="previewTimerSublabel">REMAINING</div>
+                <div class="timer-status-badge" id="previewTimerStatusBadge" title="คลิกเพื่อ Start / Pause">
+                  <span class="timer-pause-bars"><span></span><span></span></span>
+                </div>
+              </div>
+            </div>
+            <div class="lower-third hidden no-transition" id="previewThird">
+              <div class="organization-block">
+                <img
+                  id="orgLogo"
+                  class="organization-logo"
+                  alt="Organization logo"
+                />
+              </div>
+              <div class="accent"></div>
+              <div class="content">
+                <div class="name" id="pname"></div>
+                <div class="role" id="prole"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section>
+          <h1 class="heading">Corner Logo</h1>
+          <div class="logo-tabs">
+            <button class="logo active" data-logo="logo1">logo1</button>
+          </div>
+          <div class="logo-tools">
+            <button class="upload-btn" id="openLogoUpload" type="button">
+              Upload Logo
+            </button>
+          </div>
+          <div
+            class="modal hidden"
+            id="logoModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logoModalTitle"
+          >
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="logoModalTitle">Upload Logo</h2>
+                <button
+                  class="close-btn"
+                  id="closeLogoModal"
+                  type="button"
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+              <input id="logoUploadInput" type="file" accept="image/*" />
+              <div class="logo-preview-box">
+                <img id="logoPreview" alt="Logo preview" />
+              </div>
+              <div class="modal-actions">
+                <button
+                  class="secondary-btn"
+                  id="cancelLogoUpload"
+                  type="button"
+                >
+                  Cancel</button
+                ><button class="primary-btn" id="applyLogoUpload" type="button">
+                  Use this logo
+                </button>
+              </div>
+            </div>
+          </div>
+          <div
+            class="modal hidden"
+            id="organizationModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="organizationModalTitle"
+          >
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="organizationModalTitle">Organization info</h2>
+                <button
+                  class="close-btn"
+                  id="closeOrganizationModal"
+                  type="button"
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="field">
+                <label class="label" for="organizationNameInput"
+                  >Organization name</label
+                ><input
+                  class="input"
+                  id="organizationNameInput"
+                  type="text"
+                  placeholder="LIVE STUDIO"
+                />
+              </div>
+              <div class="field">
+                <label class="label" for="organizationRoleInput">Position</label
+                ><input
+                  class="input"
+                  id="organizationRoleInput"
+                  type="text"
+                  placeholder="BROADCAST UNIT"
+                />
+              </div>
+              <div class="field">
+                <label class="label" for="organizationLogoInput"
+                  >Organization logo</label
+                ><input
+                  id="organizationLogoInput"
+                  type="file"
+                  accept="image/*"
+                />
+              </div>
+              <div class="logo-preview-box">
+                <img id="orgLogoPreview" alt="Organization logo preview" />
+              </div>
+              <div class="modal-actions">
+                <button
+                  class="secondary-btn"
+                  id="cancelOrganizationChanges"
+                  type="button"
+                >
+                  Cancel</button
+                ><button
+                  class="primary-btn"
+                  id="applyOrganizationChanges"
+                  type="button"
+                >
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="heading-row">
+            <h1 class="heading" style="margin: 0;">Name</h1>
+            <div class="theme-dots" id="themeDots">
+              <label class="color-dot-wrap" title="สีพื้นหลังกล่องโลโก้ (ซ้าย)">
+                <input type="color" id="orgBlockColorPicker" value="#dce5fc" />
+                <span class="theme-dot" id="orgBlockColorDot" style="background: #dce5fc;"></span>
+              </label>
+              <label class="color-dot-wrap" title="สีแถบคั่นกลาง">
+                <input type="color" id="accentColorPicker" value="#ff4ca0" />
+                <span class="theme-dot" id="accentColorDot" style="background: #ff4ca0;"></span>
+              </label>
+              <label class="color-dot-wrap" title="สีพื้นหลังกล่องข้อความ (ขวา)">
+                <input type="color" id="contentColorPicker" value="#1b2238" />
+                <span class="theme-dot" id="contentColorDot" style="background: #1b2238;"></span>
+              </label>
+            </div>
+          </div>
+          <div class="list" id="profiles"></div>
+
+          <div
+            class="modal hidden"
+            id="profileModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profileModalTitle"
+          >
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="profileModalTitle">Edit Profile</h2>
+                <button
+                  class="close-btn"
+                  id="closeProfileModal"
+                  type="button"
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="field">
+                <label class="label" for="name">ชื่อ (Name)</label>
+                <input class="input" id="name" type="text" />
+              </div>
+              <div class="field">
+                <label class="label" for="role">ตำแหน่ง (Role)</label>
+                <input class="input" id="role" type="text" />
+              </div>
+              <div class="field">
+                <label class="label" for="profileOrgLogoInput">โลโก้หน่วยงาน (Org Logo)</label>
+                <div class="upload-area" style="padding: 10px; margin-top: 5px;">
+                  <input type="file" id="profileOrgLogoInput" accept="image/*" class="file-input" style="font-size: 14px;" />
+                  <img id="profileOrgLogoPreview" style="display: none; max-height: 50px; margin-top: 10px; border-radius: 4px;" />
+                </div>
+              </div>
+              <div
+                class="modal-actions"
+                style="
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-top: 15px;
+                "
+              >
+                <div
+                  id="saveStatus"
+                  style="font-size: 0.8rem; font-weight: bold"
+                ></div>
+                <div style="display: flex; gap: 10px">
+                  <button
+                    class="secondary-btn"
+                    id="cancelProfileChanges"
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                  <button class="primary-btn" id="saveProfile" type="button">
+                    Save Profile
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section>
+          <h1 class="heading">Project</h1>
+          <div id="projects"></div>
+          <div
+            class="modal hidden"
+            id="projectModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="projectModalTitle"
+          >
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="projectModalTitle">Edit Project</h2>
+                <button
+                  class="close-btn"
+                  id="closeProjectModal"
+                  type="button"
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="field">
+                <label class="label" for="projectNameInput">ชื่อเรื่อง (Title)</label>
+                <textarea class="input auto-expand" id="projectNameInput" rows="1"></textarea>
+              </div>
+              <div class="field">
+                <label class="label" for="projectLogoInput">โลโก้ (Logo)</label>
+                <div class="upload-area" style="padding: 10px; margin-top: 5px;">
+                  <input type="file" id="projectLogoInput" accept="image/*" class="file-input" style="font-size: 14px;" />
+                  <img id="projectLogoPreview" style="display: none; max-height: 50px; margin-top: 10px; border-radius: 4px;" />
+                </div>
+              </div>
+              <div
+                class="modal-actions"
+                style="
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-top: 15px;
+                "
+              >
+                <div
+                  id="projectSaveStatus"
+                  style="font-size: 0.8rem; font-weight: bold"
+                ></div>
+                <div style="display: flex; gap: 10px">
+                  <button
+                    class="secondary-btn"
+                    id="cancelProjectChanges"
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                  <button class="primary-btn" id="saveProject" type="button">
+                    Save Project
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="heading-row" style="margin-top: 22px;">
+            <h1 class="heading" style="margin: 0;">Timer</h1>
+            <button type="button" class="timer-show-btn" id="timerVisibleBtn">
+              Show Timer
+            </button>
+          </div>
+          <div class="timer-panel">
+            <div class="timer-mode-tabs">
+              <button type="button" class="timer-mode-tab active" id="timerModeCountdown" data-mode="countdown">
+                Countdown (นับถอยหลัง)
+              </button>
+              <button type="button" class="timer-mode-tab" id="timerModeStopwatch" data-mode="stopwatch">
+                Stopwatch (เดินหน้า)
+              </button>
+            </div>
+            <div class="timer-position-group">
+              <div class="timer-position-tabs" id="timerPositionTabs" role="group" aria-label="ตำแหน่งนาฬิกา">
+                <button type="button" class="timer-pos-btn" data-pos="top-left">ซ้ายบน</button>
+                <button type="button" class="timer-pos-btn" data-pos="bottom-left">ซ้ายล่าง</button>
+                <button type="button" class="timer-pos-btn active" data-pos="center">กลาง</button>
+                <button type="button" class="timer-pos-btn" data-pos="top-right">ขวาบน</button>
+                <button type="button" class="timer-pos-btn" data-pos="bottom-right">ขวาล่าง</button>
+              </div>
+            </div>
+            <div class="timer-bg-row">
+              <span class="timer-position-label">BG</span>
+              <button type="button" class="live-toggle timer-bg-toggle on" id="timerBgToggleBtn" aria-pressed="true" title="เปิด/ปิดกล่องพื้นหลังนาฬิกา">
+                <span class="live-toggle-label" id="timerBgToggleLabel">ON</span>
+                <span class="live-toggle-knob"></span>
+              </button>
+            </div>
+            <div class="timer-panel-readout" id="timerPanelReadout">10:00</div>
+            <div class="timer-countdown-config" id="timerCountdownConfig">
+              <div class="timer-set-row">
+                <input type="number" class="input timer-num-input" id="timerMinInput" min="0" max="999" value="10" aria-label="Minutes" />
+                <span class="timer-colon">:</span>
+                <input type="number" class="input timer-num-input" id="timerSecInput" min="0" max="59" value="00" aria-label="Seconds" />
+                <button type="button" class="timer-set-btn" id="timerSetBtn">Set</button>
+              </div>
+              <div class="timer-presets">
+                <button type="button" class="timer-preset-btn" data-sec="60">1m</button>
+                <button type="button" class="timer-preset-btn" data-sec="180">3m</button>
+                <button type="button" class="timer-preset-btn" data-sec="300">5m</button>
+                <button type="button" class="timer-preset-btn" data-sec="600">10m</button>
+                <button type="button" class="timer-preset-btn" data-sec="900">15m</button>
+              </div>
+            </div>
+            <div class="timer-controls-row">
+              <button type="button" class="timer-ctrl-btn start" id="timerStartPauseBtn">▶ Start</button>
+              <button type="button" class="timer-ctrl-btn reset" id="timerResetBtn">↺ Reset</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="control.js"></script>
+  </body>
+</html>

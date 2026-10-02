@@ -1,0 +1,8 @@
+{
+  "name": "live-overlay-control",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "@supabase/supabase-js": "^2.49.1", "dotenv": "^16.4.7", "express": "^4.21.2", "socket.io": "^4.8.1" }
+}
