@@ -36,7 +36,7 @@ function people() {
            <div class="person-content" style="flex: 1; cursor: pointer; overflow: hidden;">
              <span class="person-text"><strong>${p.name}</strong><small>${p.role}</small></span>
            </div>
-           <button class="edit-person-btn" data-id="${p.id}" aria-label="Edit Profile">⋯</button>
+           <button class="edit-person-btn" data-id="${p.id}" aria-label="Edit Profile">...</button>
          </div>`,
     )
     .join("");
@@ -63,21 +63,20 @@ function people() {
           visible: true,
           updatedAt: Date.now(),
         };
-        socket.emit("overlay:selectProfile", profileId);
-        socket.emit("overlay:trigger", { type: "replay" });
+        socket.emit("overlay:update", {
+          ...state,
+          organizationLogo: profile.organization_logo ?? state.organizationLogo,
+        });
         paint(state);
-        replayPreview();
       }),
   );
   document.querySelectorAll("#profiles .edit-person-btn").forEach((btn) => {
     btn.onclick = (e) => {
       e.stopPropagation();
-      const profileId = Number(btn.dataset.id);
-      openProfileModal(profileId);
+      openProfileModal(Number(btn.dataset.id));
     };
   });
 }
-
 function openProfileModal(profileId) {
   const profile = state.profiles.find((p) => p.id === profileId);
   if (!profile) return;
@@ -357,6 +356,29 @@ function paint(s) {
     liveToggleLabel.textContent = liveOn ? "ON" : "OFF";
   }
 
+  const previewQaOverlay = $("previewQaOverlay");
+  const previewQaText = $("previewQaText");
+  if (previewQaOverlay && previewQaText) {
+    const isQaVisible = state.qaVisible !== false && state.activeQa != null;
+    previewQaOverlay.classList.toggle("hidden", !isQaVisible);
+    
+    if (state.qaList && state.activeQa) {
+      const q = state.qaList.find((item) => item.id === state.activeQa);
+      if (q) {
+        previewQaText.textContent = q.question;
+      }
+    }
+    
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        previewQaOverlay.classList.remove("no-transition");
+      })
+    );
+  }
+
+  document.querySelectorAll(".qa-btn").forEach((btn) => {
+    btn.classList.toggle("active", state.qaVisible !== false && Number(btn.dataset.id) === state.activeQa);
+  });
   renderCornerLogos();
   renderProjects();
   people();
@@ -672,7 +694,8 @@ function getTimerState() {
     : "center";
   return {
     visible: Boolean(t.visible),
-    mode: t.mode === "stopwatch" ? "stopwatch" : "countdown",
+    mode: ["stopwatch", "countdown", "clock"].includes(t.mode) ? t.mode : "countdown",
+    clockType: t.clockType === "digital" ? "digital" : "analog",
     position: pos,
     showBg: t.showBg !== undefined ? Boolean(t.showBg) : true,
     durationSec: Math.max(1, Number(t.durationSec) || 600),
@@ -725,13 +748,35 @@ function renderTimerUI() {
     if (previewSublabel) previewSublabel.textContent = "REMAINING";
   }
 
-  const mins = Math.floor(displaySec / 60);
-  const secs = displaySec % 60;
-  const formatted = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  
+  let formatted = "";
+  if (t.mode === "clock") {
+    const d = new Date();
+    formatted = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  } else {
+    const mins = Math.floor(displaySec / 60);
+    const secs = displaySec % 60;
+    formatted = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
 
-  if (previewDigits) previewDigits.textContent = formatted;
+
+  if (previewDigits) {
+    if (t.mode === "clock" && t.clockType === "digital") {
+      const d = new Date();
+      previewDigits.innerHTML = `<div class="flip-block">${String(d.getHours()).padStart(2, "0")}</div><div class="flip-block">${String(d.getMinutes()).padStart(2, "0")}</div>`;
+    } else {
+      previewDigits.textContent = formatted;
+    }
+  }
   const panelReadout = $("timerPanelReadout");
-  if (panelReadout) panelReadout.textContent = formatted;
+  if (panelReadout) {
+    if (t.mode === "clock" && t.clockType === "digital") {
+      const d = new Date();
+      panelReadout.innerHTML = `<div class="timer-digits small-flip" style="display:flex; gap:6px; margin:0;"><div class="flip-block">${String(d.getHours()).padStart(2, "0")}</div><div class="flip-block">${String(d.getMinutes()).padStart(2, "0")}</div></div>`;
+    } else {
+      panelReadout.textContent = formatted;
+    }
+  }
 
   if (previewRing) {
     previewRing.style.strokeDashoffset = (RING_CIRC * (1 - progress)).toFixed(2);
@@ -782,7 +827,7 @@ function renderTimerUI() {
   const visibleBtn = $("timerVisibleBtn");
   if (visibleBtn) {
     visibleBtn.classList.toggle("active", t.visible);
-    visibleBtn.textContent = t.visible ? "Showing Timer" : "Show Timer";
+    visibleBtn.textContent = "ON Air";
   }
 
   const modeCountdownBtn = $("timerModeCountdown");
@@ -791,16 +836,60 @@ function renderTimerUI() {
     modeCountdownBtn.classList.toggle("active", t.mode === "countdown");
   if (modeStopwatchBtn)
     modeStopwatchBtn.classList.toggle("active", t.mode === "stopwatch");
+  const modeClockBtn = $("timerModeClock");
+  if (modeClockBtn) modeClockBtn.classList.toggle("active", t.mode === "clock");
 
-  const countdownConfig = $("timerCountdownConfig");
+
+    const countdownConfig = $("timerCountdownConfig");
   if (countdownConfig)
-    countdownConfig.classList.toggle("hidden", t.mode === "stopwatch");
+    countdownConfig.classList.toggle("hidden", t.mode === "stopwatch" || t.mode === "clock");
+
+  const clockConfig = $("timerClockConfig");
+  if (clockConfig)
+    clockConfig.classList.toggle("hidden", t.mode !== "clock");
+
+    const btnAnalog = $("clockTypeAnalog");
+  const btnDigital = $("clockTypeDigital");
+  if (btnAnalog && btnDigital) {
+    btnAnalog.classList.toggle("active", t.clockType !== "digital");
+    btnDigital.classList.toggle("active", t.clockType === "digital");
+  }
+
+  const previewAnalogClock = $("previewAnalogClock");
+  if (previewAnalogClock) {
+    const isAnalog = t.mode === "clock" && t.clockType !== "digital";
+    previewAnalogClock.classList.toggle("hidden", !isAnalog);
+    if (previewDigits) previewDigits.style.display = isAnalog ? "none" : "";
+    if (previewSublabel) previewSublabel.style.display = isAnalog ? "none" : "";
+    
+    if (isAnalog) {
+      const d = new Date();
+      const hr = d.getHours() % 12;
+      const min = d.getMinutes();
+      const sec = d.getSeconds();
+      const ms = d.getMilliseconds();
+      const hrDeg = (hr + min / 60) * 30;
+      const minDeg = (min + sec / 60) * 6;
+      const secDeg = (sec + ms / 1000) * 6;
+      
+      const hHand = $("previewHourHand");
+      const mHand = $("previewMinHand");
+      const sHand = $("previewSecondHand");
+      if (hHand) hHand.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+      if (mHand) mHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+      if (sHand) sHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+    }
+  }
+
 
   const startPauseBtn = $("timerStartPauseBtn");
   if (startPauseBtn) {
     startPauseBtn.classList.toggle("running", effectivelyRunning);
-    startPauseBtn.textContent = effectivelyRunning ? "⏸ Pause" : "▶ Start";
+    startPauseBtn.innerHTML = effectivelyRunning ? `<span style="display: inline-block;">⏸</span>` : `<span style="display: inline-block; transform: translate(4px, 1px);">▶</span>`;
   }
+  if (startPauseBtn) startPauseBtn.style.display = t.mode === "clock" ? "none" : "";
+  const resetBtn = $("timerResetBtn");
+  if (resetBtn) resetBtn.style.display = t.mode === "clock" ? "none" : "";
 }
 
 function toggleTimerStartPause() {
@@ -884,6 +973,7 @@ $("timerSetBtn")?.addEventListener("click", () => {
 
 document.querySelectorAll(".timer-preset-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
+    if (!btn.hasAttribute("data-sec")) return;
     const totalSec = Math.max(1, Number(btn.dataset.sec) || 300);
     const minInput = $("timerMinInput");
     const secInput = $("timerSecInput");
@@ -916,3 +1006,125 @@ setInterval(() => {
   fetch("/ping").catch(() => {});
 }, 240000);
 
+
+document.querySelectorAll('.clock-face').forEach(function(face) { 
+  if(face.querySelector('.clock-number')) return; 
+  for(var i=1; i<=12; i++) { 
+    var n = document.createElement('div'); 
+    n.className = 'clock-number num-' + i; 
+    n.innerHTML = '<span>' + i + '</span>'; 
+    face.appendChild(n); 
+  } 
+});
+function updateClockModes() {
+  document.querySelectorAll('.timer-overlay, #previewTimerOverlay').forEach(function(el) {
+    var t = typeof currentState !== 'undefined' ? currentState.timer : (typeof getTimerState === 'function' ? getTimerState() : null);
+    if(t) {
+      var isClock = t.mode === 'clock';
+      var isDigitalClock = isClock && t.clockType === 'digital';
+      var isAnalogClock = isClock && t.clockType !== 'digital';
+      el.classList.toggle('digital-clock-mode', isDigitalClock);
+      el.classList.toggle('analog-clock-mode', isAnalogClock);
+    }
+  });
+}
+setInterval(updateClockModes, 200);
+
+timerModeClock?.addEventListener("click", () => {
+  const t = getTimerState();
+  if (t.mode === "clock") return;
+  updateTimerState({
+    mode: "clock",
+    clockType: "analog",
+    running: false,
+    startedAt: null,
+  });
+});
+clockTypeAnalog?.addEventListener("click", () => { updateTimerState({ clockType: "analog" }); });
+clockTypeDigital?.addEventListener("click", () => { updateTimerState({ clockType: "digital" }); });
+
+
+// --- Q&A Logic ---
+document.querySelectorAll(".qa-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const id = Number(btn.dataset.id);
+    if (state.activeQa === id && state.qaVisible !== false) {
+      state = { ...state, qaVisible: false, updatedAt: Date.now() };
+      socket.emit("overlay:update", { qaVisible: false });
+      paint(state);
+    } else {
+      state = { ...state, activeQa: id, qaVisible: true, updatedAt: Date.now() };
+      // Note: intentionally removed activeMode: "qa" so it doesn't interfere with profiles/projects if they are independent
+      socket.emit("overlay:selectQa", id);
+      paint(state);
+    }
+  });
+});
+
+const editQaBtn = $("editQaBtn");
+if (editQaBtn) {
+  editQaBtn.addEventListener("click", () => {
+    const modal = $("qaModal");
+    if (modal) modal.classList.remove("hidden");
+    const status = $("qaSaveStatus");
+    if (status) status.textContent = "";
+    
+    // Fill inputs
+    for (let i = 1; i <= 4; i++) {
+      const input = $("qaInput" + i);
+      const qObj = state.qaList?.find((q) => q.id === i);
+      if (input) {
+        input.value = qObj ? qObj.question : "";
+        setTimeout(() => autoResizeTextarea(input), 0);
+      }
+    }
+  });
+}
+
+const closeQaModalBtn = $("closeQaModal");
+const cancelQaChangesBtn = $("cancelQaChanges");
+function closeQaModal() {
+  const modal = $("qaModal");
+  if (modal) modal.classList.add("hidden");
+}
+if (closeQaModalBtn) closeQaModalBtn.addEventListener("click", closeQaModal);
+if (cancelQaChangesBtn) cancelQaChangesBtn.addEventListener("click", closeQaModal);
+
+const saveQaBtn = $("saveQa");
+if (saveQaBtn) {
+  saveQaBtn.addEventListener("click", () => {
+    const status = $("qaSaveStatus");
+    if (status) {
+      status.textContent = "Saving...";
+      status.style.color = "#475569";
+    }
+    saveQaBtn.disabled = true;
+    
+    const qaList = [];
+    for (let i = 1; i <= 4; i++) {
+      const input = $("qaInput" + i);
+      qaList.push({ id: i, question: input ? input.value : "" });
+    }
+    
+    socket.emit("overlay:saveQa", { qaList }, (res) => {
+      saveQaBtn.disabled = false;
+      if (res && res.ok) {
+        if (status) {
+          status.textContent = "? Saved to Supabase";
+          status.style.color = "#10b981";
+        }
+        setTimeout(closeQaModal, 1500);
+      } else {
+        if (status) {
+          status.textContent = "? Save failed";
+          status.style.color = "#ef4444";
+        }
+      }
+    });
+  });
+}
+
+// --- SVG Close Buttons ---
+document.querySelectorAll(".close-btn").forEach(btn => {
+  btn.innerHTML = `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+});

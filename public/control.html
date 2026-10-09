@@ -35,7 +35,15 @@
                 <circle class="timer-ring-progress" id="previewTimerRingProgress" cx="150" cy="150" r="124" style="stroke: url(#previewTimerRingGrad);" />
               </svg>
               <div class="timer-inner">
-                <div class="timer-digits" id="previewTimerDigits">10:00</div>
+                <div class="analog-clock hidden" id="previewAnalogClock">
+  <div class="clock-face">
+    <div class="hand hour-hand" id="previewHourHand"></div>
+    <div class="hand min-hand" id="previewMinHand"></div>
+    <div class="hand second-hand" id="previewSecondHand"></div>
+    <div class="clock-center"></div>
+  </div>
+</div>
+<div class="timer-digits" id="previewTimerDigits">10:00</div>
                 <div class="timer-sublabel" id="previewTimerSublabel">REMAINING</div>
                 <div class="timer-status-badge" id="previewTimerStatusBadge" title="คลิกเพื่อ Start / Pause">
                   <span class="timer-pause-bars"><span></span><span></span></span>
@@ -56,121 +64,13 @@
                 <div class="role" id="prole"></div>
               </div>
             </div>
+            <div class="qa-overlay hidden no-transition" id="previewQaOverlay">
+              <div class="qa-badge">Q&amp;A</div>
+              <div class="qa-content"><div class="qa-text" id="previewQaText"></div></div>
+            </div>
           </div>
         </section>
         <section>
-          <h1 class="heading">Corner Logo</h1>
-          <div class="logo-tabs">
-            <button class="logo active" data-logo="logo1">logo1</button>
-          </div>
-          <div class="logo-tools">
-            <button class="upload-btn" id="openLogoUpload" type="button">
-              Upload Logo
-            </button>
-          </div>
-          <div
-            class="modal hidden"
-            id="logoModal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="logoModalTitle"
-          >
-            <div class="modal-card">
-              <div class="modal-header">
-                <h2 id="logoModalTitle">Upload Logo</h2>
-                <button
-                  class="close-btn"
-                  id="closeLogoModal"
-                  type="button"
-                  aria-label="Close popup"
-                >
-                  ×
-                </button>
-              </div>
-              <input id="logoUploadInput" type="file" accept="image/*" />
-              <div class="logo-preview-box">
-                <img id="logoPreview" alt="Logo preview" />
-              </div>
-              <div class="modal-actions">
-                <button
-                  class="secondary-btn"
-                  id="cancelLogoUpload"
-                  type="button"
-                >
-                  Cancel</button
-                ><button class="primary-btn" id="applyLogoUpload" type="button">
-                  Use this logo
-                </button>
-              </div>
-            </div>
-          </div>
-          <div
-            class="modal hidden"
-            id="organizationModal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="organizationModalTitle"
-          >
-            <div class="modal-card">
-              <div class="modal-header">
-                <h2 id="organizationModalTitle">Organization info</h2>
-                <button
-                  class="close-btn"
-                  id="closeOrganizationModal"
-                  type="button"
-                  aria-label="Close popup"
-                >
-                  ×
-                </button>
-              </div>
-              <div class="field">
-                <label class="label" for="organizationNameInput"
-                  >Organization name</label
-                ><input
-                  class="input"
-                  id="organizationNameInput"
-                  type="text"
-                  placeholder="LIVE STUDIO"
-                />
-              </div>
-              <div class="field">
-                <label class="label" for="organizationRoleInput">Position</label
-                ><input
-                  class="input"
-                  id="organizationRoleInput"
-                  type="text"
-                  placeholder="BROADCAST UNIT"
-                />
-              </div>
-              <div class="field">
-                <label class="label" for="organizationLogoInput"
-                  >Organization logo</label
-                ><input
-                  id="organizationLogoInput"
-                  type="file"
-                  accept="image/*"
-                />
-              </div>
-              <div class="logo-preview-box">
-                <img id="orgLogoPreview" alt="Organization logo preview" />
-              </div>
-              <div class="modal-actions">
-                <button
-                  class="secondary-btn"
-                  id="cancelOrganizationChanges"
-                  type="button"
-                >
-                  Cancel</button
-                ><button
-                  class="primary-btn"
-                  id="applyOrganizationChanges"
-                  type="button"
-                >
-                  Save changes
-                </button>
-              </div>
-            </div>
-          </div>
           <div class="heading-row">
             <h1 class="heading" style="margin: 0;">Name</h1>
             <div class="theme-dots" id="themeDots">
@@ -251,8 +151,7 @@
               </div>
             </div>
           </div>
-        </section>
-        <section>
+
           <h1 class="heading">Project</h1>
           <div id="projects"></div>
           <div
@@ -312,63 +211,245 @@
               </div>
             </div>
           </div>
-
-          <div class="heading-row" style="margin-top: 22px;">
-            <h1 class="heading" style="margin: 0;">Timer</h1>
-            <button type="button" class="timer-show-btn" id="timerVisibleBtn">
-              Show Timer
-            </button>
+        </section>
+        <section>
+                    <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+              <h1 class="heading">C logo</h1>
+              <div class="logo-tabs">
+                <button class="logo active" data-logo="logo1">logo1</button>
+              </div>
+              <div class="logo-tools">
+                <button class="upload-btn" id="openLogoUpload" type="button">
+                  Upload Logo
+                </button>
+              </div>
+            </div>
+            
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h1 class="heading" style="margin: 0;">Q&A</h1>
+                <button id="editQaBtn" style="background: none; border: none; font-size: 16px; cursor: pointer;">&#x270E;</button>
+              </div>
+              <div class="qa-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <button class="qa-btn" data-id="1">1</button>
+                <button class="qa-btn" data-id="2">2</button>
+                <button class="qa-btn" data-id="3">3</button>
+                <button class="qa-btn" data-id="4">4</button>
+              </div>
+            </div>
           </div>
-          <div class="timer-panel">
-            <div class="timer-mode-tabs">
-              <button type="button" class="timer-mode-tab active" id="timerModeCountdown" data-mode="countdown">
-                Countdown (นับถอยหลัง)
-              </button>
-              <button type="button" class="timer-mode-tab" id="timerModeStopwatch" data-mode="stopwatch">
-                Stopwatch (เดินหน้า)
-              </button>
-            </div>
-            <div class="timer-position-group">
-              <div class="timer-position-tabs" id="timerPositionTabs" role="group" aria-label="ตำแหน่งนาฬิกา">
-                <button type="button" class="timer-pos-btn" data-pos="top-left">ซ้ายบน</button>
-                <button type="button" class="timer-pos-btn" data-pos="bottom-left">ซ้ายล่าง</button>
-                <button type="button" class="timer-pos-btn active" data-pos="center">กลาง</button>
-                <button type="button" class="timer-pos-btn" data-pos="top-right">ขวาบน</button>
-                <button type="button" class="timer-pos-btn" data-pos="bottom-right">ขวาล่าง</button>
+          <div
+            class="modal hidden"
+            id="logoModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logoModalTitle"
+          >
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="logoModalTitle">Upload Logo</h2>
+                <button
+                  class="close-btn"
+                  id="closeLogoModal"
+                  type="button"
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+              <input id="logoUploadInput" type="file" accept="image/*" />
+              <div class="logo-preview-box">
+                <img id="logoPreview" alt="Logo preview" />
+              </div>
+              <div class="modal-actions">
+                <button
+                  class="secondary-btn"
+                  id="cancelLogoUpload"
+                  type="button"
+                >
+                  Cancel</button
+                ><button class="primary-btn" id="applyLogoUpload" type="button">
+                  Use this logo
+                </button>
               </div>
             </div>
-            <div class="timer-bg-row">
-              <span class="timer-position-label">BG</span>
-              <button type="button" class="live-toggle timer-bg-toggle on" id="timerBgToggleBtn" aria-pressed="true" title="เปิด/ปิดกล่องพื้นหลังนาฬิกา">
-                <span class="live-toggle-label" id="timerBgToggleLabel">ON</span>
-                <span class="live-toggle-knob"></span>
-              </button>
-            </div>
-            <div class="timer-panel-readout" id="timerPanelReadout">10:00</div>
-            <div class="timer-countdown-config" id="timerCountdownConfig">
-              <div class="timer-set-row">
-                <input type="number" class="input timer-num-input" id="timerMinInput" min="0" max="999" value="10" aria-label="Minutes" />
-                <span class="timer-colon">:</span>
-                <input type="number" class="input timer-num-input" id="timerSecInput" min="0" max="59" value="00" aria-label="Seconds" />
-                <button type="button" class="timer-set-btn" id="timerSetBtn">Set</button>
+          </div>
+          <div class="modal hidden" id="qaModal" role="dialog" aria-modal="true" aria-labelledby="qaModalTitle">
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="qaModalTitle">Edit Q&A</h2>
+                <button class="close-btn" id="closeQaModal" type="button" aria-label="Close popup">&times;</button>
               </div>
-              <div class="timer-presets">
+              <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
+                <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">1</span>
+                <textarea class="input auto-expand" id="qaInput1" rows="2" style="flex: 1;"></textarea>
+              </div>
+              <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
+                <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">2</span>
+                <textarea class="input auto-expand" id="qaInput2" rows="2" style="flex: 1;"></textarea>
+              </div>
+              <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
+                <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">3</span>
+                <textarea class="input auto-expand" id="qaInput3" rows="2" style="flex: 1;"></textarea>
+              </div>
+              <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
+                <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">4</span>
+                <textarea class="input auto-expand" id="qaInput4" rows="2" style="flex: 1;"></textarea>
+              </div>
+              <div class="modal-actions" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div id="qaSaveStatus" style="font-size: 0.8rem; font-weight: bold"></div>
+                <div style="display: flex; gap: 10px">
+                  <button class="secondary-btn" id="cancelQaChanges" type="button">Cancel</button>
+                  <button class="primary-btn" id="saveQa" type="button">Save Q&A</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="modal hidden"
+            id="organizationModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="organizationModalTitle"
+          >
+            <div class="modal-card">
+              <div class="modal-header">
+                <h2 id="organizationModalTitle">Organization info</h2>
+                <button
+                  class="close-btn"
+                  id="closeOrganizationModal"
+                  type="button"
+                  aria-label="Close popup"
+                >
+                  ×
+                </button>
+              </div>
+              <div class="field">
+                <label class="label" for="organizationNameInput"
+                  >Organization name</label
+                ><input
+                  class="input"
+                  id="organizationNameInput"
+                  type="text"
+                  placeholder="LIVE STUDIO"
+                />
+              </div>
+              <div class="field">
+                <label class="label" for="organizationRoleInput">Position</label
+                ><input
+                  class="input"
+                  id="organizationRoleInput"
+                  type="text"
+                  placeholder="BROADCAST UNIT"
+                />
+              </div>
+              <div class="field">
+                <label class="label" for="organizationLogoInput"
+                  >Organization logo</label
+                ><input
+                  id="organizationLogoInput"
+                  type="file"
+                  accept="image/*"
+                />
+              </div>
+              <div class="logo-preview-box">
+                <img id="orgLogoPreview" alt="Organization logo preview" />
+              </div>
+              <div class="modal-actions">
+                <button
+                  class="secondary-btn"
+                  id="cancelOrganizationChanges"
+                  type="button"
+                >
+                  Cancel</button
+                ><button
+                  class="primary-btn"
+                  id="applyOrganizationChanges"
+                  type="button"
+                >
+                  Save changes
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="timer-panel timer-new-layout">
+            <div class="timer-top-row">
+              <button type="button" class="timer-show-btn timer-show-btn-new" id="timerVisibleBtn">
+                ON Air
+              </button>
+              <div class="timer-mode-tabs-new">
+                <button type="button" class="timer-mode-tab-new active" id="timerModeCountdown" data-mode="countdown">CD</button>
+                <button type="button" class="timer-mode-tab-new" id="timerModeStopwatch" data-mode="stopwatch">SW</button>
+<button type="button" class="timer-mode-tab-new" id="timerModeClock" data-mode="clock">Clock</button>
+              </div>
+            </div>
+            
+            <div class="timer-main-display-new">
+              <button type="button" class="timer-icon-btn play-pause-btn" id="timerStartPauseBtn">▶</button>
+              <div class="timer-panel-readout timer-panel-readout-new" id="timerPanelReadout">10:00</div>
+              <button type="button" class="timer-icon-btn reset-btn" id="timerResetBtn">↺</button>
+            </div>
+
+            <div class="timer-clock-config hidden" id="timerClockConfig" style="display: flex; justify-content: center; gap: 8px;">
+  <button type="button" class="timer-preset-btn active" id="clockTypeAnalog" style="width: auto; padding: 4px 12px; border-radius: 12px;">Analog</button>
+  <button type="button" class="timer-preset-btn" id="clockTypeDigital" style="width: auto; padding: 4px 12px; border-radius: 12px;">Digital</button>
+</div>
+<div class="timer-countdown-config" id="timerCountdownConfig">
+              <div class="timer-presets timer-presets-new">
                 <button type="button" class="timer-preset-btn" data-sec="60">1m</button>
                 <button type="button" class="timer-preset-btn" data-sec="180">3m</button>
                 <button type="button" class="timer-preset-btn" data-sec="300">5m</button>
                 <button type="button" class="timer-preset-btn" data-sec="600">10m</button>
                 <button type="button" class="timer-preset-btn" data-sec="900">15m</button>
               </div>
+              <div class="timer-set-row timer-set-row-new">
+                <input type="number" class="input timer-num-input" id="timerMinInput" min="0" max="999" value="10" aria-label="Minutes" style="width: 60px; text-align: center; border-radius: 12px; margin:0;" />
+                <span class="timer-colon">:</span>
+                <input type="number" class="input timer-num-input" id="timerSecInput" min="0" max="59" value="00" aria-label="Seconds" style="width: 60px; text-align: center; border-radius: 12px; margin:0;" />
+                <button type="button" class="timer-set-btn" id="timerSetBtn" style="border-radius: 12px; margin-left: 8px;">Set</button>
+              </div>
             </div>
-            <div class="timer-controls-row">
-              <button type="button" class="timer-ctrl-btn start" id="timerStartPauseBtn">▶ Start</button>
-              <button type="button" class="timer-ctrl-btn reset" id="timerResetBtn">↺ Reset</button>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <div class="timer-position-group" style="flex: 1 1 auto; min-width: 200px;">
+                <div class="timer-position-tabs" id="timerPositionTabs" role="group" aria-label="ตำแหน่งนาฬิกา">
+                  <button type="button" class="timer-pos-btn" data-pos="top-left">ซ้ายบน</button>
+                  <button type="button" class="timer-pos-btn" data-pos="bottom-left">ซ้ายล่าง</button>
+                  <button type="button" class="timer-pos-btn" data-pos="center">กลาง</button>
+                  <button type="button" class="timer-pos-btn" data-pos="top-right">ขวาบน</button>
+                  <button type="button" class="timer-pos-btn" data-pos="bottom-right">ขวาล่าง</button>
+                </div>
+              </div>
+              <div class="timer-bg-row-new" style="margin-bottom: 0; margin-left: auto;">
+                <span class="timer-position-label" style="font-weight: 700; font-size: 14px;">BG</span>
+                <button type="button" class="live-toggle timer-bg-toggle on" id="timerBgToggleBtn" aria-pressed="true" title="เปิด/ปิดกล่องพื้นหลังนาฬิกา" style="transform: scale(0.85); margin-left: 0;">
+                  <span class="live-toggle-label" id="timerBgToggleLabel">ON</span>
+                  <span class="live-toggle-knob"></span>
+                </button>
+              </div>
             </div>
           </div>
         </section>
       </div>
     </main>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="control.js"></script>
+    <script src="control.js?v=7"></script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

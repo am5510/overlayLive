@@ -89,24 +89,33 @@ function renderTimerTick() {
   let progress = 1;
   let finished = false;
 
-  if (t.mode === "stopwatch") {
-    currentSec = Math.max(0, (t.baseSec || 0) + deltaSec);
+  if (t.mode === "clock") {
+    const d = new Date();
+    displaySec = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+    progress = d.getSeconds() / 60;
+    if (timerSublabel) timerSublabel.textContent = "LOCAL TIME";
+  } else if (t.mode === "stopwatch") {
     displaySec = Math.floor(currentSec);
     progress = currentSec === 0 ? 0 : (currentSec % 60) / 60;
     if (timerSublabel) timerSublabel.textContent = "ELAPSED";
   } else {
     const duration = Math.max(1, t.durationSec || 600);
-    currentSec = Math.max(0, (t.baseSec ?? duration) - deltaSec);
     displaySec = t.running ? Math.ceil(currentSec) : Math.round(currentSec);
     progress = Math.max(0, Math.min(1, currentSec / duration));
     finished = currentSec <= 0;
     if (timerSublabel) timerSublabel.textContent = "REMAINING";
   }
-
   const mins = Math.floor(displaySec / 60);
   const secs = displaySec % 60;
   if (timerDigits) {
-    timerDigits.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    if (t.mode === "clock") {
+      const d = new Date();
+      timerDigits.textContent = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    } else {
+      const mins = Math.floor(displaySec / 60);
+      const secs = displaySec % 60;
+      timerDigits.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
   }
   if (timerRingProgress) {
     timerRingProgress.style.strokeDashoffset = (RING_CIRC * (1 - progress)).toFixed(2);
@@ -119,8 +128,34 @@ function renderTimerTick() {
     if (timerStatusBadge.dataset.mode !== wantMode) {
       timerStatusBadge.dataset.mode = wantMode;
       timerStatusBadge.innerHTML = effectivelyRunning
-        ? '<span class="timer-pause-bars"><span></span><span></span></span>'
-        : '<span class="timer-play-triangle"></span>';
+        ? `<span class="timer-pause-bars"><span></span><span></span></span>`
+        : `<span class="timer-play-triangle"></span>`;
+    }
+    
+    const analogClock = document.querySelector("#analogClock");
+    if (analogClock) {
+      const isAnalog = t.mode === "clock" && t.clockType !== "digital";
+      analogClock.classList.toggle("hidden", !isAnalog);
+      if (timerDigits) timerDigits.style.display = isAnalog ? "none" : "";
+      if (timerSublabel) timerSublabel.style.display = isAnalog ? "none" : "";
+      
+      if (isAnalog) {
+        const d = new Date();
+        const hr = d.getHours() % 12;
+        const min = d.getMinutes();
+        const sec = d.getSeconds();
+        const ms = d.getMilliseconds();
+        const hrDeg = (hr + min / 60) * 30;
+        const minDeg = (min + sec / 60) * 6;
+        const secDeg = (sec + ms / 1000) * 6;
+        
+        const hHand = document.querySelector("#hourHand");
+        const mHand = document.querySelector("#minHand");
+        const sHand = document.querySelector("#secondHand");
+        if (hHand) hHand.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+        if (mHand) mHand.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+        if (sHand) sHand.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+      }
     }
   }
 }
@@ -137,6 +172,24 @@ function paint(s) {
     orgLogo.removeAttribute("src");
     orgLogo.style.display = "none";
   }
+  const qaOverlay = document.querySelector("#qaOverlay");
+  const qaText = document.querySelector("#qaText");
+  if (qaOverlay && qaText) {
+    const isQaVisible = liveOn && s.qaVisible;
+    qaOverlay.classList.toggle("hidden", !isQaVisible);
+    
+    if (s.qaList && s.activeQa) {
+      const q = s.qaList.find(item => item.id === s.activeQa);
+      if (q) {
+        qaText.textContent = q.question;
+      }
+    }
+    
+    if (initialized) {
+      qaOverlay.classList.remove("no-transition");
+    }
+  }
+
   el.classList.toggle("hidden", !liveOn || !s.visible);
   const defaultAccent =
     s.theme === "pink" ? "#ff4ca0" : s.theme === "lime" ? "#b9ff70" : "#42e8e0";
@@ -189,4 +242,33 @@ socket.on("overlay:trigger", ({ type }) => {
     replay();
   }
 });
+
+
+
+
+
+
+document.querySelectorAll('.clock-face').forEach(function(face) { 
+  if(face.querySelector('.clock-number')) return; 
+  for(var i=1; i<=12; i++) { 
+    var n = document.createElement('div'); 
+    n.className = 'clock-number num-' + i; 
+    n.innerHTML = '<span>' + i + '</span>'; 
+    face.appendChild(n); 
+  } 
+});
+function updateClockModes() {
+  document.querySelectorAll('.timer-overlay, #previewTimerOverlay').forEach(function(el) {
+    var t = typeof currentState !== 'undefined' ? currentState.timer : (typeof getTimerState === 'function' ? getTimerState() : null);
+    if(t) {
+      var isClock = t.mode === 'clock';
+      var isDigitalClock = isClock && t.clockType === 'digital';
+      var isAnalogClock = isClock && t.clockType !== 'digital';
+      el.classList.toggle('digital-clock-mode', isDigitalClock);
+      el.classList.toggle('analog-clock-mode', isAnalogClock);
+    }
+  });
+}
+setInterval(updateClockModes, 200);
+
 

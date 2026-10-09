@@ -123,14 +123,16 @@ const CHANNEL_TABLES = {
     state: 'overlay_state',
     profiles: 'profiles',
     projects: 'projects',
-    cornerLogos: 'corner_logos'
-  },
+    cornerLogos: 'corner_logos',
+      qa: 'Q&A'
+    },
   '2': {
     state: 'overlay_state2',
     profiles: 'profiles2',
     projects: 'projects2',
-    cornerLogos: 'corner_logos2'
-  }
+    cornerLogos: 'corner_logos2',
+      qa: 'Q&A2'
+    }
 };
 
 const states = {
@@ -182,12 +184,24 @@ async function restoreChannel(ch) {
     states[ch].projects = [{ id: 1, name: 'LIVE MAIN' }, { id: 2, name: 'INTERVIEW' }, { id: 3, name: 'BREAKING NEWS' }];
   }
 
-  const { data: logosData, error: logosErr } = await supabase.from(tables.cornerLogos).select('*').order('id');
-  if (!logosErr && logosData && logosData.length > 0) {
-    states[ch].cornerLogos = logosData;
-  } else {
-    states[ch].cornerLogos = [{ id: 1, name: 'logo1' }];
-  }
+      const { data: logosData, error: logosErr } = await supabase.from(tables.cornerLogos).select('*').order('id');
+    if (!logosErr && logosData && logosData.length > 0) {
+      states[ch].cornerLogos = logosData;
+    } else {
+      states[ch].cornerLogos = [{ id: 1, name: 'logo1' }];
+    }
+
+    const { data: qaData, error: qaErr } = await supabase.from(tables.qa).select('*').order('id');
+    if (!qaErr && qaData && qaData.length > 0) {
+      states[ch].qaList = qaData;
+    } else if (!states[ch].qaList || states[ch].qaList.length === 0) {
+      states[ch].qaList = [
+        { id: 1, question: '' },
+        { id: 2, question: '' },
+        { id: 3, question: '' },
+        { id: 4, question: '' }
+      ];
+    }
 
   channelRestored[ch] = true;
   return true;
@@ -353,6 +367,28 @@ io.on('connection', async (socket) => {
     io.to(`channel:${ch}`).emit('overlay:state', states[ch]);
     const saved = await persist(ch);
     done(saved.ok ? saved : { ok: true });
+  });
+
+  socket.on('overlay:selectQa', (id) => {
+    const numId = Number(id);
+    states[ch] = { ...states[ch], activeQa: numId, qaVisible: true, updatedAt: Date.now() };
+    broadcast(ch);
+  });
+
+  socket.on('overlay:saveQa', async ({ qaList }, done = () => {}) => {
+    const tables = CHANNEL_TABLES[ch];
+    if (supabase && qaList && Array.isArray(qaList)) {
+      try {
+        for (const q of qaList) {
+          await supabase.from(tables.qa).upsert({ id: q.id, question: q.question });
+        }
+      } catch (err) {
+        console.warn(`[Channel ${ch}] Failed to upsert Q&A in DB (${tables.qa}):`, err.message);
+      }
+    }
+    states[ch] = { ...states[ch], qaList, updatedAt: Date.now() };
+    broadcast(ch);
+    done({ ok: true });
   });
 
   socket.on('overlay:trigger', ({ type }) => {
