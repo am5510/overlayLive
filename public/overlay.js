@@ -85,6 +85,15 @@ function renderTimerTick() {
     t.running && t.startedAt ? Math.max(0, (Date.now() - t.startedAt) / 1000) : 0;
 
   let currentSec = 0;
+  if (t.mode === "stopwatch") {
+    currentSec = Math.max(0, (Number(t.baseSec) || 0) + deltaSec);
+  } else {
+    const base =
+      t.baseSec !== undefined && t.baseSec !== null
+        ? Math.max(0, Number(t.baseSec))
+        : Math.max(1, Number(t.durationSec) || 600);
+    currentSec = Math.max(0, base - deltaSec);
+  }
   let displaySec = 0;
   let progress = 1;
   let finished = false;
