@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Emoji Reactions</title>
+    <link rel="stylesheet" href="styles.css?v=31" />
+    <style>
+      body.emoji-remote-page {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background:
+          radial-gradient(circle at 85% 6%, #fffed9 0, transparent 25%),
+          radial-gradient(circle at 54% 68%, #ffccef 0, transparent 37%),
+          linear-gradient(125deg, #d1bcff, #fff8f2 53%, #a9aafa);
+        overflow: hidden;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+      }
+      .remote-card {
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 28px;
+        padding: 26px 20px 22px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1.5px solid rgba(255, 255, 255, 0.8);
+        max-width: 440px;
+        width: calc(100% - 32px);
+        box-sizing: border-box;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+      }
+      .remote-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .remote-ch-badge {
+        background: #000000;
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 15px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+      }
+      .remote-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+      }
+      .remote-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #10b981;
+        margin-bottom: 18px;
+      }
+      .remote-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        animation: pulseDot 1.5s infinite;
+      }
+      @keyframes pulseDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.3); }
+      }
+      .remote-emoji-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      .remote-emoji-btn {
+        flex: 1;
+        max-width: 68px;
+        aspect-ratio: 1;
+        height: auto;
+        border-radius: 50%;
+        border: none;
+        background: #ffffff;
+        box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px;
+        transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .remote-emoji-btn:active {
+        transform: scale(0.82);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      .remote-emoji-btn svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        pointer-events: none;
+      }
+      .remote-hint {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        margin: 0;
+      }
+      /* Floating burst particles on click inside the remote screen */
+      .remote-burst {
+        position: fixed;
+        pointer-events: none;
+        user-select: none;
+        z-index: 999;
+        will-change: transform, opacity;
+        animation: burstUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+      @keyframes burstUp {
+        0% {
+          opacity: 1;
+          transform: translate(-50%, -50%) translateY(0) scale(0.8);
+        }
+        70% {
+          opacity: 1;
+          transform: translate(-50%, -50%) translateY(-120px) scale(1.2);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) translateY(-170px) scale(1.3);
+        }
+      }
+    </style>
+  </head>
+  <body class="emoji-remote-page">
+    <div class="remote-card">
+      <div class="remote-header">
+        <span class="remote-ch-badge" id="chBadge">CH 1</span>
+        <h1 class="remote-title">Live Reaction</h1>
+      </div>
+      <div class="remote-status" id="remoteStatus">
+        <span class="remote-status-dot"></span>
+        <span>Connected to Live</span>
+      </div>
+      <div class="remote-emoji-bar" id="remoteEmojiBar">
+        <button type="button" class="remote-emoji-btn" data-emoji="like" title="Like (👍)" aria-label="Like">
+          <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="#1877F2"/><path d="M10 17C10 16.2 10.7 15.5 11.5 15.5H13.5C14.3 15.5 15 16.2 15 17V26C15 26.8 14.3 27.5 13.5 27.5H11.5C10.7 27.5 10 26.8 10 26V17ZM16.5 27C17.5 27 19.5 27.5 21.5 27.5C24.5 27.5 25.8 26 25.8 23.5C25.8 22.8 25.5 22.1 25.1 21.5C25.8 20.8 26.2 19.8 26.2 18.8C26.2 18 25.9 17.2 25.4 16.6C25.7 15.9 25.7 15 25.1 14.3C24.3 13.5 23.2 13.5 21.7 13.5H19.5C19.8 12.5 20.5 10 20.5 8.5C20.5 7 19.5 6 18.2 6C17.2 6 16.8 6.8 16.6 7.6L16.2 11.2C15.9 13.8 14.2 15.8 13.5 16.5L16.5 17.5V27Z" fill="#FFFFFF"/></svg>
+        </button>
+        <button type="button" class="remote-emoji-btn" data-emoji="heart" title="Love (❤️)" aria-label="Love">
+          <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="#FA3E3E"/><path d="M18 27.5L16.2 25.8C9.8 20 5.5 16.1 5.5 11.3C5.5 7.4 8.5 4.5 12.4 4.5C14.6 4.5 16.7 5.5 18 7.1C19.3 5.5 21.4 4.5 23.6 4.5C27.5 4.5 30.5 7.4 30.5 11.3C30.5 16.1 26.2 20 19.8 25.8L18 27.5Z" fill="#FFFFFF"/></svg>
+        </button>
+        <button type="button" class="remote-emoji-btn" data-emoji="love" title="Heart Eyes (😍)" aria-label="Heart Eyes">
+          <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="#F7B125"/><path d="M7 11C7 8.8 8.8 7 11 7C12.3 7 13.6 7.6 14.7 8.7C15.8 7.6 17.1 7 18.4 7C20.6 7 22.4 8.8 22.4 11C22.4 13.9 19.8 16.3 15.8 19.9L14.7 20.9L13.6 19.9C9.6 16.3 7 13.9 7 11Z" fill="#E0245E" transform="scale(0.58) translate(-1, 5)"/><path d="M7 11C7 8.8 8.8 7 11 7C12.3 7 13.6 7.6 14.7 8.7C15.8 7.6 17.1 7 18.4 7C20.6 7 22.4 8.8 22.4 11C22.4 13.9 19.8 16.3 15.8 19.9L14.7 20.9L13.6 19.9C9.6 16.3 7 13.9 7 11Z" fill="#E0245E" transform="scale(0.58) translate(22, 5)"/><path d="M9.5 21C9.5 26 13.3 29.5 18 29.5C22.7 29.5 26.5 26 26.5 21H9.5Z" fill="#583100"/><path d="M12.5 21C12.8 24.5 15.2 27 18 27C20.8 27 23.2 24.5 23.5 21H12.5Z" fill="#E0245E"/></svg>
+        </button>
+        <button type="button" class="remote-emoji-btn" data-emoji="laugh" title="Haha (😂)" aria-label="Haha">
+          <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="#F7B125"/><path d="M8 14.5C9.5 12 12.5 12 14 14.5" stroke="#583100" stroke-width="2.2" stroke-linecap="round"/><path d="M22 14.5C23.5 12 26.5 12 28 14.5" stroke="#583100" stroke-width="2.2" stroke-linecap="round"/><path d="M9 19.5C9 26 13 29.5 18 29.5C23 29.5 27 26 27 19.5H9Z" fill="#583100"/><path d="M12 19.5C12.5 23.5 15 26 18 26C21 26 23.5 23.5 24 19.5H12Z" fill="#E0245E"/><path d="M9 19.5H27C27 21 25 22 18 22C11 22 9 21 9 19.5Z" fill="#FFFFFF"/><path d="M4.5 17C4.5 17 7 19.5 7 21.5C7 22.9 5.9 24 4.5 24C3.1 24 2 22.9 2 21.5C2 19.5 4.5 17 4.5 17Z" fill="#29B6F6"/><path d="M31.5 17C31.5 17 29 19.5 29 21.5C29 22.9 30.1 24 31.5 24C32.9 24 34 22.9 34 21.5C34 19.5 31.5 17 31.5 17Z" fill="#29B6F6"/></svg>
+        </button>
+        <button type="button" class="remote-emoji-btn" data-emoji="party" title="Party (🎉)" aria-label="Party">
+          <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="18" fill="#FFFFFF"/><path d="M7 29L13 13L25 25L7 29Z" fill="#F7B125"/><path d="M13 13L16 16L10 22L7 29L13 13Z" fill="#FA3E3E"/><path d="M13 13L25 25" stroke="#D97706" stroke-width="1.5"/><circle cx="26" cy="9" r="2.2" fill="#FA3E3E"/><circle cx="21" cy="7" r="1.8" fill="#29B6F6"/><circle cx="30" cy="15" r="2" fill="#10B981"/><circle cx="27" cy="21" r="1.8" fill="#8B5CF6"/><circle cx="15" cy="6" r="1.5" fill="#F59E0B"/><path d="M19 12C22 10 25 13 28 11" stroke="#FA3E3E" stroke-width="1.8" stroke-linecap="round"/><path d="M22 17C25 16 27 19 30 18" stroke="#29B6F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="remote-hint">แตะรัวๆ เพื่อส่ง Reaction ขึ้นจอไลฟ์สด</p>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // Determine channel from URL param ?channel=2 or default from filename/path
+      const urlParams = new URLSearchParams(window.location.search);
+      const CHANNEL = urlParams.get("channel") || (window.location.pathname.includes("2") ? "2" : "1");
+
+      const chBadge = document.getElementById("chBadge");
+      if (chBadge) chBadge.textContent = "CH " + CHANNEL;
+      document.title = "Emoji Reactions - CH " + CHANNEL;
+
+      const socket = io({ query: { channel: CHANNEL } });
+      const statusText = document.getElementById("remoteStatus");
+
+      socket.on("connect", () => {
+        if (statusText) {
+          statusText.innerHTML = '<span class="remote-status-dot"></span><span>Connected to Live (CH ' + CHANNEL + ')</span>';
+          statusText.style.color = "#10b981";
+        }
+      });
+      socket.on("disconnect", () => {
+        if (statusText) {
+          statusText.innerHTML = '<span class="remote-status-dot" style="background:#ef4444"></span><span>Reconnecting...</span>';
+          statusText.style.color = "#ef4444";
+        }
+      });
+
+      let isSharePermitted = false;
+      const emojiButtons = document.querySelectorAll(".remote-emoji-btn");
+
+      socket.on("overlay:state", (st) => {
+        if (!st) return;
+        isSharePermitted = Boolean(st.emojiShareEnabled);
+        if (statusText) {
+          if (!isSharePermitted) {
+            statusText.innerHTML = '<span class="remote-status-dot" style="background:#eab308"></span><span style="color:#b45309">การแชร์ปิดอยู่ (รอผู้ดูแลเปิดแชร์)</span>';
+          } else {
+            statusText.innerHTML = '<span class="remote-status-dot" style="background:#10b981"></span><span style="color:#10b981">พร้อมส่ง Reaction (CH ' + CHANNEL + ')</span>';
+          }
+        }
+        emojiButtons.forEach((b) => {
+          b.style.opacity = isSharePermitted ? "1" : "0.45";
+          b.style.filter = isSharePermitted ? "none" : "grayscale(0.6)";
+          b.style.cursor = isSharePermitted ? "pointer" : "not-allowed";
+        });
+      });
+
+      // Rapid spam batching
+      let emojiBatchQueue = [];
+      let emojiBatchTimer = null;
+
+      function spawnLocalBurst(type, x, y) {
+        const svgEl = document.querySelector(`.remote-emoji-btn[data-emoji="${type}"] svg`);
+        if (!svgEl) return;
+        const burst = document.createElement("div");
+        burst.className = "remote-burst";
+        burst.style.left = (x || (window.innerWidth / 2)) + "px";
+        burst.style.top = (y || (window.innerHeight / 2)) + "px";
+        burst.style.width = "48px";
+        burst.style.height = "48px";
+        burst.innerHTML = svgEl.outerHTML;
+        document.body.appendChild(burst);
+        setTimeout(() => burst.remove(), 1050);
+      }
+
+      function sendEmoji(type, event) {
+        if (!type) return;
+        if (!isSharePermitted) {
+          // If share is turned off, do nothing
+          return;
+        }
+
+        // Visual click burst
+        let clientX = window.innerWidth / 2;
+        let clientY = window.innerHeight / 2;
+        if (event && event.touches && event.touches[0]) {
+          clientX = event.touches[0].clientX;
+          clientY = event.touches[0].clientY;
+        } else if (event && event.clientX) {
+          clientX = event.clientX;
+          clientY = event.clientY;
+        }
+        spawnLocalBurst(type, clientX, clientY);
+
+        // Haptic feedback for mobile devices (if supported)
+        if (navigator.vibrate) {
+          navigator.vibrate(15);
+        }
+
+        const side = Math.random() < 0.5 ? "left" : "right";
+        const size = Math.floor(46 + Math.random() * 34);
+
+        emojiBatchQueue.push({ type, side, size });
+
+        if (!emojiBatchTimer) {
+          emojiBatchTimer = setTimeout(() => {
+            if (emojiBatchQueue.length > 0) {
+              socket.emit("overlay:emoji", {
+                items: emojiBatchQueue,
+                isRemote: true,
+                senderId: socket.id
+              });
+              emojiBatchQueue = [];
+            }
+            emojiBatchTimer = null;
+          }, 45);
+        }
+      }
+
+      emojiButtons.forEach((btn) => {
+        btn.addEventListener("pointerdown", (e) => {
+          const type = btn.dataset.emoji;
+          sendEmoji(type, e);
+        });
+      });
+    </script>
+  </body>
+</html>

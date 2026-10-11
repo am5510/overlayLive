@@ -96,6 +96,7 @@ function createDefaultState() {
     avatar: 'NS',
     motion: 'slide',
     cornerLogo: 'logo1',
+    cornerLogoPosition: 'right',
     customLogo: '',
     customLogoName: '',
     organizationName: 'LIVE STUDIO',
@@ -114,6 +115,8 @@ function createDefaultState() {
       running: false,
       startedAt: null
     },
+    emojiAuto: false,
+    emojiShareEnabled: false,
     updatedAt: Date.now()
   };
 }
@@ -225,6 +228,42 @@ function broadcast(ch) {
   void persist(ch);
 }
 
+const autoEmojiTimers = { '1': null, '2': null };
+const EMOJI_TYPES = ['like', 'heart', 'love', 'laugh', 'party'];
+
+function startEmojiAuto(ch) {
+  ch = normalizeChannel(ch);
+  if (autoEmojiTimers[ch]) return;
+  const loop = () => {
+    if (!states[ch] || !states[ch].emojiAuto) {
+      autoEmojiTimers[ch] = null;
+      return;
+    }
+    const count = Math.random() < 0.28 ? 2 : 1;
+    const items = [];
+    for (let i = 0; i < count; i++) {
+      const type = EMOJI_TYPES[Math.floor(Math.random() * EMOJI_TYPES.length)];
+      const side = Math.random() < 0.5 ? 'left' : 'right';
+      const size = Math.floor(46 + Math.random() * 34);
+      items.push({ type, side, size });
+    }
+    io.to(`channel:${ch}`).emit('overlay:emoji', { items });
+
+    const delay = 650 + Math.floor(Math.random() * 750);
+    autoEmojiTimers[ch] = setTimeout(loop, delay);
+  };
+  const initialDelay = 250 + Math.floor(Math.random() * 300);
+  autoEmojiTimers[ch] = setTimeout(loop, initialDelay);
+}
+
+function stopEmojiAuto(ch) {
+  ch = normalizeChannel(ch);
+  if (autoEmojiTimers[ch]) {
+    clearTimeout(autoEmojiTimers[ch]);
+    autoEmojiTimers[ch] = null;
+  }
+}
+
 io.on('connection', async (socket) => {
   const ch = normalizeChannel(socket.handshake.query?.channel);
   socket.join(`channel:${ch}`);
@@ -250,6 +289,10 @@ io.on('connection', async (socket) => {
     }
 
     states[ch] = { ...states[ch], ...nextPatch, updatedAt: Date.now() };
+    if (nextPatch.emojiAuto !== undefined) {
+      if (nextPatch.emojiAuto) startEmojiAuto(ch);
+      else stopEmojiAuto(ch);
+    }
     broadcast(ch);
   });
 
@@ -393,6 +436,29 @@ io.on('connection', async (socket) => {
 
   socket.on('overlay:trigger', ({ type }) => {
     io.to(`channel:${ch}`).emit('overlay:trigger', { type, id: Date.now() });
+  });
+
+  socket.on('overlay:emoji', (payload) => {
+    // If sent from remote emoji page (isRemote: true) and sharing is disabled, reject it
+    if (payload?.isRemote && !states[ch]?.emojiShareEnabled) {
+      return;
+    }
+    io.to(`channel:${ch}`).emit('overlay:emoji', payload);
+  });
+
+  socket.on('overlay:emojiShareToggle', ({ enabled }) => {
+    states[ch] = { ...states[ch], emojiShareEnabled: Boolean(enabled), updatedAt: Date.now() };
+    broadcast(ch);
+  });
+
+  socket.on('overlay:emojiAuto', ({ enabled }) => {
+    states[ch] = { ...states[ch], emojiAuto: Boolean(enabled), updatedAt: Date.now() };
+    if (states[ch].emojiAuto) {
+      startEmojiAuto(ch);
+    } else {
+      stopEmojiAuto(ch);
+    }
+    broadcast(ch);
   });
 });
 
