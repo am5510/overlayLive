@@ -1052,10 +1052,16 @@ function renderTimerUI() {
 
   const startPauseBtn = $("timerStartPauseBtn");
   if (startPauseBtn) {
-    startPauseBtn.classList.toggle("running", effectivelyRunning);
-    startPauseBtn.innerHTML = effectivelyRunning ? `<span style="display: inline-block;">⏸</span>` : `<span style="display: inline-block; transform: translate(4px, 1px);">▶</span>`;
+    const wantMode = effectivelyRunning ? "running" : "paused";
+    if (startPauseBtn.dataset.mode !== wantMode) {
+      startPauseBtn.dataset.mode = wantMode;
+      startPauseBtn.classList.toggle("running", effectivelyRunning);
+      startPauseBtn.innerHTML = effectivelyRunning
+        ? '<span class="timer-pause-bars"><span></span><span></span></span>'
+        : '<span class="timer-play-triangle"></span>';
+    }
+    startPauseBtn.style.display = t.mode === "clock" ? "none" : "";
   }
-  if (startPauseBtn) startPauseBtn.style.display = t.mode === "clock" ? "none" : "";
   const resetBtn = $("timerResetBtn");
   if (resetBtn) resetBtn.style.display = t.mode === "clock" ? "none" : "";
 }
@@ -1159,6 +1165,7 @@ document.querySelectorAll(".timer-preset-btn").forEach((btn) => {
 
 $("timerStartPauseBtn")?.addEventListener("click", toggleTimerStartPause);
 $("previewTimerStatusBadge")?.addEventListener("click", toggleTimerStartPause);
+$("timerPanelReadout")?.addEventListener("click", toggleTimerStartPause);
 
 $("timerResetBtn")?.addEventListener("click", () => {
   const t = getTimerState();

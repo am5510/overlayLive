@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="styles.css?v=48" />
+    <link rel="stylesheet" href="styles.css?v=50" />
     <title>2 Live Techno</title>
   </head>
   <body data-channel="2">
@@ -405,9 +405,11 @@
             </div>
             
             <div class="timer-main-display-new">
-              <button type="button" class="timer-icon-btn play-pause-btn" id="timerStartPauseBtn">▶</button>
-              <div class="timer-panel-readout timer-panel-readout-new" id="timerPanelReadout">10:00</div>
-              <button type="button" class="timer-icon-btn reset-btn" id="timerResetBtn">↺</button>
+              <button type="button" class="timer-icon-btn play-pause-btn" id="timerStartPauseBtn" title="Start / Pause" data-mode="paused">
+                <span class="timer-play-triangle"></span>
+              </button>
+              <div class="timer-panel-readout timer-panel-readout-new" id="timerPanelReadout" title="คลิกเพื่อ Start / Pause">10:00</div>
+              <button type="button" class="timer-icon-btn reset-btn" id="timerResetBtn" title="Reset">↺</button>
             </div>
 
             <div class="timer-clock-config hidden" id="timerClockConfig" style="display: flex; justify-content: center; gap: 8px;">
@@ -507,7 +509,7 @@
       </div>
     </main>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="control.js?v=20"></script>
+    <script src="control.js?v=22"></script>
   </body>
 </html>
 
