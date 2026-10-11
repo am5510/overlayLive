@@ -108,19 +108,31 @@ function renderTimerTick() {
   const mins = Math.floor(displaySec / 60);
   const secs = displaySec % 60;
   if (timerDigits) {
-    if (t.mode === "clock") {
+    if (t.mode === "clock" && t.clockType === "digital") {
       const d = new Date();
-      timerDigits.textContent = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      const timeKey = `${hh}:${mm}`;
+      if (timerDigits.dataset.currentTime !== timeKey) {
+        timerDigits.dataset.currentTime = timeKey;
+        timerDigits.innerHTML = `<div class="flip-block">${hh}</div><div class="flip-block">${mm}</div>`;
+      }
     } else {
-      const mins = Math.floor(displaySec / 60);
-      const secs = displaySec % 60;
-      timerDigits.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+      delete timerDigits.dataset.currentTime;
+      if (t.mode === "clock") {
+        const d = new Date();
+        timerDigits.textContent = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+      } else {
+        const mins = Math.floor(displaySec / 60);
+        const secs = displaySec % 60;
+        timerDigits.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+      }
     }
   }
   if (timerRingProgress) {
     timerRingProgress.style.strokeDashoffset = (RING_CIRC * (1 - progress)).toFixed(2);
   }
-  timerOverlay.classList.toggle("finished", finished && t.mode !== "stopwatch");
+  timerOverlay.classList.toggle("finished", Boolean(finished && t.mode === "countdown"));
 
   const effectivelyRunning = Boolean(t.running && !finished);
   if (timerStatusBadge) {
