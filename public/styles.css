@@ -603,22 +603,42 @@ body.overlay-page {
 .project:active {
   transform: scale(0.97);
 }
-.person.active,
-.person:hover {
+.person.active {
   border-color: var(--green);
   background: var(--green);
   color: #fff;
   box-shadow: 0 5px 17px #20ad7540;
 }
 .person.active .person-text small,
-.person.active .person-text strong,
-.person:hover .person-text small,
-.person:hover .person-text strong {
+.person.active .person-text strong {
   color: #fff;
 }
-.person.inactive {
-  border-color: #ff4c4c;
-  box-shadow: 0 0 0 1px rgba(255, 76, 76, 0.2) inset;
+@media (hover: hover) and (pointer: fine) {
+  .person:not(.active):not(.inactive):hover {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 5px 17px #20ad7540;
+  }
+  .person:not(.active):not(.inactive):hover .person-text small,
+  .person:not(.active):not(.inactive):hover .person-text strong {
+    color: #fff;
+  }
+}
+.person.inactive,
+.project.inactive {
+  border-color: #ff4c4c !important;
+  background: #ffffffdd !important;
+  color: var(--ink) !important;
+  box-shadow: 0 0 0 1px rgba(255, 76, 76, 0.2) inset !important;
+}
+.person.inactive .person-text strong,
+.project.inactive strong {
+  color: var(--ink) !important;
+}
+.person.inactive .person-text small {
+  color: var(--ink) !important;
+  opacity: 0.55 !important;
 }
 .person .person-text {
   display: block;
@@ -678,12 +698,19 @@ body.overlay-page {
   padding-top: 12px;
   padding-bottom: 10px;
 }
-.project.active,
-.project:hover {
+.project.active {
   border-color: var(--green);
   background: var(--green);
   color: #fff;
   box-shadow: 0 5px 17px #20ad7540;
+}
+@media (hover: hover) and (pointer: fine) {
+  .project:not(.active):not(.inactive):hover {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 5px 17px #20ad7540;
+  }
 }
 .project strong {
   font-size: 14px;
@@ -1182,12 +1209,18 @@ textarea.input.auto-expand {
   cursor: pointer;
   transition: 0.18s;
 }
-.timer-show-btn.active,
-.timer-show-btn:hover {
+.timer-show-btn.active {
   border-color: var(--green);
   background: var(--green);
   color: #ffffff;
   box-shadow: 0 4px 12px #20ad7540;
+}
+@media (hover: hover) and (pointer: fine) {
+  .timer-show-btn:not(.active):hover {
+    border-color: var(--green);
+    background: #e2e8f0;
+    color: #0f172a;
+  }
 }
 .timer-panel {
   background: #ffffffdd;
@@ -1420,6 +1453,12 @@ textarea.input.auto-expand {
   background: #19bd76;
   color: white;
   box-shadow: 0 4px 8px rgba(25, 189, 118, 0.3);
+}
+@media (hover: hover) and (pointer: fine) {
+  .timer-show-btn-new:not(.active):hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
 }
 .timer-mode-tabs-new {
   display: flex;

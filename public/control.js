@@ -37,6 +37,8 @@ function bindPeopleEvents() {
         const profileId = Number(personDiv.dataset.id);
         const sameProfile = state.activeMode !== "project" && profileId === state.activeProfile;
         if (sameProfile) {
+          b.blur?.();
+          personDiv?.blur?.();
           state = { ...state, visible: !state.visible, updatedAt: Date.now() };
           socket.emit("overlay:update", { visible: state.visible });
           paint(state);
@@ -92,13 +94,17 @@ function people() {
   }
   container.innerHTML = state.profiles
     .map(
-      (p) =>
-        `<div class="person ${!state.visible ? "inactive" : state.activeMode !== "project" && p.id === state.activeProfile ? "active" : ""}" data-id="${p.id}">
+      (p) => {
+        const isActive = state.visible && state.activeMode !== "project" && p.id === state.activeProfile;
+        const isInactive = !state.visible && state.activeMode !== "project" && p.id === state.activeProfile;
+        const cls = isActive ? "active" : isInactive ? "inactive" : "";
+        return `<div class="person ${cls}" data-id="${p.id}">
            <div class="person-content" style="flex: 1; cursor: pointer; overflow: hidden;">
              <span class="person-text"><strong>${p.name}</strong><small>${p.role}</small></span>
            </div>
            <button class="edit-person-btn" data-id="${p.id}" aria-label="Edit Profile">⋯</button>
-         </div>`,
+         </div>`;
+      }
     )
     .join("");
   bindPeopleEvents();
@@ -174,6 +180,8 @@ function bindProjectEvents() {
         const projectId = Number(projectDiv.dataset.id);
         const sameProject = state.activeMode === "project" && projectId === state.activeProject;
         if (sameProject) {
+          b.blur?.();
+          projectDiv?.blur?.();
           state = { ...state, visible: !state.visible, updatedAt: Date.now() };
           socket.emit("overlay:update", { visible: state.visible });
           paint(state);
@@ -229,14 +237,18 @@ function renderProjects() {
   }
   container.innerHTML = state.projects
     .map(
-      (p) =>
-        `<div class="project ${!state.visible ? "inactive" : state.activeMode === "project" && p.id === state.activeProject ? "active" : ""}" data-id="${p.id}">
+      (p) => {
+        const isActive = state.visible && state.activeMode === "project" && p.id === state.activeProject;
+        const isInactive = !state.visible && state.activeMode === "project" && p.id === state.activeProject;
+        const cls = isActive ? "active" : isInactive ? "inactive" : "";
+        return `<div class="project ${cls}" data-id="${p.id}">
            <div class="project-content" style="flex: 1; min-width: 0; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px;">
              ${p.logo ? `<img src="${p.logo}" alt="" style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; flex-shrink: 0;" />` : ""}
              <strong>${p.name}</strong>
            </div>
            <button class="edit-person-btn edit-project-btn" data-id="${p.id}" aria-label="Edit Project">⋯</button>
-         </div>`,
+         </div>`;
+      }
     )
     .join("");
   bindProjectEvents();
@@ -1089,7 +1101,8 @@ function toggleTimerStartPause() {
   }
 }
 
-$("timerVisibleBtn")?.addEventListener("click", () => {
+$("timerVisibleBtn")?.addEventListener("click", (e) => {
+  e.currentTarget?.blur?.();
   const t = getTimerState();
   updateTimerState({ visible: !t.visible });
 });
