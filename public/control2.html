@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="styles.css?v=34" />
+    <link rel="stylesheet" href="styles.css?v=35" />
     <title>2 Live Techno</title>
   </head>
   <body data-channel="2">
@@ -11,10 +11,15 @@
       <header class="topbar">
         <span class="brand-badge"><span>2</span></span>
         <span>Live Techno</span>
-        <button type="button" class="live-toggle on" id="liveToggleBtn" aria-pressed="true" title="เปิด/ปิดการส่งสัญญาณไปหน้า Overlay ช่อง 2">
-          <span class="live-toggle-label" id="liveToggleLabel">ON</span>
-          <span class="live-toggle-knob"></span>
+        <button type="button" class="user-auth-btn" id="userAuthBtn" title="เข้าสู่ระบบเพื่อควบคุมการทำงาน" aria-label="User Login">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
         </button>
+        <div class="live-toggle-wrapper">
+          <button type="button" class="live-toggle on" id="liveToggleBtn" aria-pressed="true" title="เปิด/ปิดการส่งสัญญาณไปหน้า Overlay ช่อง 2">
+            <span class="live-toggle-label" id="liveToggleLabel">ON</span>
+            <span class="live-toggle-knob"></span>
+          </button>
+        </div>
       </header>
       <div class="grid">
         <section class="preview-col">
@@ -481,9 +486,28 @@
           </div>
         </section>
       </div>
+
+      <!-- User Authentication Modal -->
+      <div class="modal hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+        <div class="modal-card login-card">
+          <div class="login-avatar">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </div>
+          <h2 class="login-title" id="authModalTitle">เข้าสู่ระบบควบคุม (ช่อง 2)</h2>
+          <p class="login-desc">กรุณากรอกรหัสผ่านเพื่อปลดล็อกการสั่งงาน</p>
+          <form id="authForm" onsubmit="return false;">
+            <input type="password" id="authPasswordInput" class="input" placeholder="กรอกรหัสผ่าน..." autocomplete="current-password" style="text-align: center; font-size: 16px; padding: 12px; margin-bottom: 8px;" />
+            <div class="login-error" id="authErrorMessage"></div>
+            <div style="display: flex; gap: 10px; margin-top: 14px;">
+              <button type="button" class="secondary-btn" id="cancelAuthBtn" style="flex: 1;">ยกเลิก</button>
+              <button type="submit" class="primary-btn" id="submitAuthBtn" style="flex: 1; background: #10b981;">เข้าสู่ระบบ</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </main>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="control.js?v=19"></script>
+    <script src="control.js?v=20"></script>
   </body>
 </html>
 

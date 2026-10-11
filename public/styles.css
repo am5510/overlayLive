@@ -83,6 +83,7 @@ body.overlay-page {
   font-size: 28px;
   letter-spacing: -0.5px;
   margin-bottom: 26px;
+  width: 100%;
 }
 .brand-badge {
   width: 46px;
@@ -106,6 +107,37 @@ body.overlay-page {
   background-clip: text;
   color: transparent;
 }
+.user-auth-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+.user-auth-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
+}
+.user-auth-btn.authenticated {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.35);
+}
+.live-toggle-wrapper {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
 .live-toggle {
   position: relative;
   width: 78px;
@@ -116,7 +148,6 @@ body.overlay-page {
   color: #ffffff;
   cursor: pointer;
   padding: 0 10px;
-  margin-left: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
@@ -811,6 +842,51 @@ textarea.input.auto-expand {
   border-radius: 18px;
   padding: 20px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+}
+.login-card {
+  width: min(92vw, 360px);
+  text-align: center;
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+}
+.login-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #10b981;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.login-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 6px;
+}
+.login-desc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px;
+}
+.login-error {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ef4444;
+  margin-top: 10px;
+  min-height: 18px;
+}
+.dashboard.locked .grid {
+  filter: blur(1.5px);
+  opacity: 0.65;
+  pointer-events: none;
+  user-select: none;
+}
+.dashboard.locked #liveToggleBtn {
+  opacity: 0.65;
+  pointer-events: none;
 }
 .modal-header {
   display: flex;

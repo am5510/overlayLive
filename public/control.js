@@ -1502,4 +1502,97 @@ $("emojiShareToggleBtn")?.addEventListener("click", () => {
   }
 });
 
+// --- User Authentication & Access Control ---
+const AUTH_PASSWORDS = {
+  "1": "Techno@1711*1",
+  "2": "Techno@1711*2"
+};
+const AUTH_STORAGE_KEY = `live_control_auth_ch_${CHANNEL || "1"}`;
+const dashboardEl = document.querySelector(".dashboard");
+const userAuthBtn = $("userAuthBtn");
+const authModal = $("authModal");
+const authForm = $("authForm");
+const authPasswordInput = $("authPasswordInput");
+const authErrorMessage = $("authErrorMessage");
+const cancelAuthBtn = $("cancelAuthBtn");
+
+let isAuthenticated = sessionStorage.getItem(AUTH_STORAGE_KEY) === "true";
+
+function applyAuthUI(authed) {
+  isAuthenticated = authed;
+  if (userAuthBtn) {
+    userAuthBtn.classList.toggle("authenticated", authed);
+    userAuthBtn.setAttribute("title", authed ? "เข้าสู่ระบบแล้ว (คลิกเพื่อออกจากระบบ)" : "เข้าสู่ระบบเพื่อควบคุมการทำงาน");
+  }
+  if (dashboardEl) {
+    dashboardEl.classList.toggle("locked", !authed);
+  }
+}
+
+function openAuthModal() {
+  if (authModal) {
+    authModal.classList.remove("hidden");
+    if (authPasswordInput) {
+      authPasswordInput.value = "";
+      setTimeout(() => authPasswordInput.focus(), 80);
+    }
+    if (authErrorMessage) {
+      authErrorMessage.textContent = "";
+    }
+  }
+}
+
+function closeAuthModal() {
+  if (authModal) {
+    authModal.classList.add("hidden");
+    if (authErrorMessage) authErrorMessage.textContent = "";
+  }
+}
+
+userAuthBtn?.addEventListener("click", () => {
+  if (isAuthenticated) {
+    if (confirm("คุณต้องการออกจากระบบหรือไม่?")) {
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      applyAuthUI(false);
+    }
+  } else {
+    openAuthModal();
+  }
+});
+
+cancelAuthBtn?.addEventListener("click", closeAuthModal);
+
+authForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const inputPass = (authPasswordInput?.value || "").trim();
+  const currentCh = String(CHANNEL || "1");
+  const expectedPass = AUTH_PASSWORDS[currentCh] || "Techno@1711*1";
+
+  if (inputPass === expectedPass) {
+    sessionStorage.setItem(AUTH_STORAGE_KEY, "true");
+    applyAuthUI(true);
+    closeAuthModal();
+  } else {
+    if (authErrorMessage) {
+      authErrorMessage.textContent = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง";
+    }
+    if (authPasswordInput) {
+      authPasswordInput.value = "";
+      authPasswordInput.focus();
+    }
+  }
+});
+
+// Intercept attempts to click controls when locked
+dashboardEl?.addEventListener("click", (e) => {
+  if (!isAuthenticated && !e.target.closest("#userAuthBtn") && !e.target.closest("#authModal")) {
+    e.stopPropagation();
+    openAuthModal();
+  }
+}, true);
+
+// Initialize auth state on load
+applyAuthUI(isAuthenticated);
+
+
 
