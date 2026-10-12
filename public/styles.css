@@ -2035,7 +2035,7 @@ textarea.input.auto-expand {
   position: relative;
   z-index: 2;
   transform: translateX(0);
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.65s cubic-bezier(0.25, 0.1, 0.25, 1), height 0.55s cubic-bezier(0.25, 0.1, 0.25, 1);
   overflow: hidden;
   box-sizing: border-box;
   will-change: height, transform;
@@ -2072,7 +2072,7 @@ textarea.input.auto-expand {
   box-shadow: none;
   z-index: 1;
   transform: translateX(0);
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.65s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .qa-overlay.hidden .qa-badge {
@@ -2090,13 +2090,13 @@ textarea.input.auto-expand {
   letter-spacing: -0.2px;
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.38s cubic-bezier(0.25, 0.1, 0.25, 1);
   will-change: opacity, transform;
 }
 .qa-text.fade-out {
   opacity: 0;
-  transform: translate3d(0, 10px, 0);
-  transition: opacity 0.16s ease-in, transform 0.16s ease-in;
+  transform: translate3d(0, 8px, 0);
+  transition: opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1), transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .qa-text b,
 .qa-text strong {

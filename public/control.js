@@ -71,10 +71,10 @@ function updatePreviewQaTextWithTransition(qaContent, qaText, newHtml, isSwitchi
 
         previewQaResetHeightTimer = setTimeout(() => {
           qaContent.style.height = '';
-        }, 460);
+        }, 580);
       });
     });
-  }, 140);
+  }, 160);
 }
 function bindPeopleEvents() {
   document.querySelectorAll(".person-content").forEach(

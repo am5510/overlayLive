@@ -275,10 +275,10 @@ function updateQaTextWithTransition(qaContent, qaText, newHtml, isSwitching) {
 
         qaResetHeightTimer = setTimeout(() => {
           qaContent.style.height = '';
-        }, 460);
+        }, 580);
       });
     });
-  }, 140);
+  }, 160);
 }
 
   const qaOverlay = document.querySelector("#qaOverlay");
