@@ -53,24 +53,28 @@ function updatePreviewQaTextWithTransition(qaContent, qaText, newHtml, isSwitchi
   qaText.classList.add('fade-out');
 
   previewQaTransitionTimer = setTimeout(() => {
-    const startHeight = qaContent.offsetHeight;
+    const startHeight = qaContent.getBoundingClientRect().height;
     qaContent.style.height = startHeight + 'px';
 
     qaText.innerHTML = newHtml;
 
+    // Measure destination height
     qaContent.style.height = 'auto';
-    const targetHeight = qaContent.offsetHeight;
+    const targetHeight = qaContent.getBoundingClientRect().height;
     qaContent.style.height = startHeight + 'px';
 
-    void qaContent.offsetHeight;
+    // Double rAF ensures browser paints startHeight before initiating transition
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        qaContent.style.height = targetHeight + 'px';
+        qaText.classList.remove('fade-out');
 
-    qaContent.style.height = targetHeight + 'px';
-    qaText.classList.remove('fade-out');
-
-    previewQaResetHeightTimer = setTimeout(() => {
-      qaContent.style.height = '';
-    }, 420);
-  }, 160);
+        previewQaResetHeightTimer = setTimeout(() => {
+          qaContent.style.height = '';
+        }, 460);
+      });
+    });
+  }, 140);
 }
 function bindPeopleEvents() {
   document.querySelectorAll(".person-content").forEach(
