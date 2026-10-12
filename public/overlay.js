@@ -193,19 +193,108 @@ function paint(s) {
     orgLogo.removeAttribute("src");
     orgLogo.style.display = "none";
   }
+function renderFormattedText(str) {
+  if (!str) return "";
+  let html = String(str).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const allowed = new Set(['B', 'STRONG', 'SPAN', 'FONT', 'I', 'EM', 'BR', 'DIV', 'P']);
+    function clean(node) {
+      for (const child of Array.from(node.childNodes)) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          const tag = child.tagName.toUpperCase();
+          if (!allowed.has(tag)) {
+            node.replaceChild(doc.createTextNode(child.textContent), child);
+            continue;
+          }
+          for (const attr of Array.from(child.attributes)) {
+            const name = attr.name.toLowerCase();
+            if (tag === 'FONT' && (name === 'color' || name === 'size')) continue;
+            if (name === 'style') {
+              const color = child.style.color;
+              const weight = child.style.fontWeight;
+              const size = child.style.fontSize;
+              child.removeAttribute('style');
+              if (color) child.style.color = color;
+              if (weight) child.style.fontWeight = weight;
+              if (size) child.style.fontSize = size;
+              continue;
+            }
+            child.removeAttribute(attr.name);
+          }
+          clean(child);
+        }
+      }
+    }
+    clean(doc.body);
+    return doc.body.innerHTML;
+  } catch (_e) {
+    return String(str);
+  }
+}
+
+let lastActiveQa = null;
+let lastQaVisible = false;
+let qaTransitionTimer = null;
+let qaResetHeightTimer = null;
+
+function updateQaTextWithTransition(qaContent, qaText, newHtml, isSwitching) {
+  if (!qaContent || !qaText) return;
+
+  if (!isSwitching) {
+    clearTimeout(qaTransitionTimer);
+    clearTimeout(qaResetHeightTimer);
+    qaContent.style.height = '';
+    qaText.classList.remove('fade-out');
+    qaText.innerHTML = newHtml;
+    return;
+  }
+
+  clearTimeout(qaTransitionTimer);
+  clearTimeout(qaResetHeightTimer);
+
+  qaText.classList.add('fade-out');
+
+  qaTransitionTimer = setTimeout(() => {
+    const startHeight = qaContent.offsetHeight;
+    qaContent.style.height = startHeight + 'px';
+
+    qaText.innerHTML = newHtml;
+
+    qaContent.style.height = 'auto';
+    const targetHeight = qaContent.offsetHeight;
+    qaContent.style.height = startHeight + 'px';
+
+    void qaContent.offsetHeight;
+
+    qaContent.style.height = targetHeight + 'px';
+    qaText.classList.remove('fade-out');
+
+    qaResetHeightTimer = setTimeout(() => {
+      qaContent.style.height = '';
+    }, 420);
+  }, 160);
+}
+
   const qaOverlay = document.querySelector("#qaOverlay");
   const qaText = document.querySelector("#qaText");
-  if (qaOverlay && qaText) {
+  const qaContent = qaOverlay ? qaOverlay.querySelector(".qa-content") : null;
+  if (qaOverlay && qaText && qaContent) {
     const isQaVisible = liveOn && s.qaVisible;
     qaOverlay.classList.toggle("hidden", !isQaVisible);
     
     if (s.qaList && s.activeQa) {
       const q = s.qaList.find(item => item.id === s.activeQa);
       if (q) {
-        qaText.textContent = q.question;
+        const isSwitching = isQaVisible && lastQaVisible && s.activeQa !== lastActiveQa && lastActiveQa != null;
+        updateQaTextWithTransition(qaContent, qaText, renderFormattedText(q.question), isSwitching);
       }
     }
     
+    lastActiveQa = s.activeQa;
+    lastQaVisible = isQaVisible;
+
     if (initialized) {
       qaOverlay.classList.remove("no-transition");
     }

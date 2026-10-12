@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="styles.css?v=52" />
+    <link rel="stylesheet" href="styles.css?v=60" />
     <title>2 Live Techno</title>
   </head>
   <body data-channel="2">
@@ -294,26 +294,61 @@
             </div>
           </div>
           <div class="modal hidden" id="qaModal" role="dialog" aria-modal="true" aria-labelledby="qaModalTitle">
-            <div class="modal-card">
+            <div class="modal-card" style="max-width: 680px;">
               <div class="modal-header">
                 <h2 id="qaModalTitle">Edit Q&A</h2>
                 <button class="close-btn" id="closeQaModal" type="button" aria-label="Close popup">&times;</button>
               </div>
+              <div class="qa-toolbar">
+                <div class="qa-toolbar-group">
+                  <button type="button" class="qa-tool-btn" id="qaBoldBtn" title="ตัวหนา (Bold)"><b>B</b></button>
+                </div>
+                <div class="qa-toolbar-divider"></div>
+                <div class="qa-toolbar-group">
+                  <span class="qa-tool-label">ขนาด:</span>
+                  <button type="button" class="qa-tool-btn qa-size-btn" id="qaDecreaseFontBtn" title="ลดขนาดตัวอักษร (A-)">A-</button>
+                  <select class="qa-size-select" id="qaSizeSelect" title="เลือกขนาด">
+                    <option value="2">เล็ก (88%)</option>
+                    <option value="3" selected>ปกติ (100%)</option>
+                    <option value="4">ใหญ่ (118%)</option>
+                    <option value="5">ใหญ่มาก (135%)</option>
+                    <option value="6">ใหญ่พิเศษ (155%)</option>
+                  </select>
+                  <button type="button" class="qa-tool-btn qa-size-btn" id="qaIncreaseFontBtn" title="เพิ่มขนาดตัวอักษร (A+)">A+</button>
+                </div>
+                <div class="qa-toolbar-divider"></div>
+                <div class="qa-toolbar-group">
+                  <span class="qa-tool-label">สี:</span>
+                  <button type="button" class="qa-color-btn" data-color="#eab308" style="background:#eab308;" title="สีเหลืองทอง"></button>
+                  <button type="button" class="qa-color-btn" data-color="#0284c7" style="background:#0284c7;" title="สีฟ้า"></button>
+                  <button type="button" class="qa-color-btn" data-color="#e11d48" style="background:#e11d48;" title="สีแดง"></button>
+                  <button type="button" class="qa-color-btn" data-color="#16a34a" style="background:#16a34a;" title="สีเขียว"></button>
+                  <button type="button" class="qa-color-btn" data-color="#7c3aed" style="background:#7c3aed;" title="สีม่วง"></button>
+                  <button type="button" class="qa-color-btn" data-color="#ea580c" style="background:#ea580c;" title="สีส้ม"></button>
+                  <button type="button" class="qa-color-btn" data-color="#1e293b" style="background:#1e293b;" title="สีดำ (ปกติ)"></button>
+                  <label class="qa-color-picker-wrap" title="เลือกสีอื่นๆ">
+                    <input type="color" id="qaCustomColorPicker" value="#eab308" />
+                    <span class="qa-color-picker-dot">🎨</span>
+                  </label>
+                  <button type="button" class="qa-tool-btn qa-clear-btn" id="qaClearFormatBtn" title="ล้างการจัดรูปแบบ">⟲ ล้างรูปแบบ</button>
+                </div>
+              </div>
+              <div class="qa-toolbar-hint">💡 คลุมดำ (ไฮไลต์) ข้อความที่ต้องการ แล้วกดปุ่ม <b>B</b>, <b>A+ / A-</b> หรือเลือกสีเพื่อเน้นข้อความเฉพาะส่วนได้เลย</div>
               <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
                 <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">1</span>
-                <textarea class="input auto-expand" id="qaInput1" rows="2" style="flex: 1;"></textarea>
+                <div class="input qa-edit-box" id="qaInput1" contenteditable="true" role="textbox" aria-multiline="true" placeholder="ข้อความคำถามที่ 1..." style="flex: 1;"></div>
               </div>
               <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
                 <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">2</span>
-                <textarea class="input auto-expand" id="qaInput2" rows="2" style="flex: 1;"></textarea>
+                <div class="input qa-edit-box" id="qaInput2" contenteditable="true" role="textbox" aria-multiline="true" placeholder="ข้อความคำถามที่ 2..." style="flex: 1;"></div>
               </div>
               <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
                 <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">3</span>
-                <textarea class="input auto-expand" id="qaInput3" rows="2" style="flex: 1;"></textarea>
+                <div class="input qa-edit-box" id="qaInput3" contenteditable="true" role="textbox" aria-multiline="true" placeholder="ข้อความคำถามที่ 3..." style="flex: 1;"></div>
               </div>
               <div class="field" style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;">
                 <span style="font-weight: bold; font-size: 18px; margin-top: 10px; width: 20px; text-align: center;">4</span>
-                <textarea class="input auto-expand" id="qaInput4" rows="2" style="flex: 1;"></textarea>
+                <div class="input qa-edit-box" id="qaInput4" contenteditable="true" role="textbox" aria-multiline="true" placeholder="ข้อความคำถามที่ 4..." style="flex: 1;"></div>
               </div>
               <div class="modal-actions" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
                 <div id="qaSaveStatus" style="font-size: 0.8rem; font-weight: bold"></div>
@@ -509,7 +544,7 @@
       </div>
     </main>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="control.js?v=24"></script>
+    <script src="control.js?v=27"></script>
   </body>
 </html>
 

@@ -474,18 +474,66 @@ function paint(s) {
     liveToggleLabel.textContent = liveOn ? "ON" : "OFF";
   }
 
+let previewLastActiveQa = null;
+let previewLastQaVisible = false;
+let previewQaTransitionTimer = null;
+let previewQaResetHeightTimer = null;
+
+function updatePreviewQaTextWithTransition(qaContent, qaText, newHtml, isSwitching) {
+  if (!qaContent || !qaText) return;
+
+  if (!isSwitching) {
+    clearTimeout(previewQaTransitionTimer);
+    clearTimeout(previewQaResetHeightTimer);
+    qaContent.style.height = '';
+    qaText.classList.remove('fade-out');
+    qaText.innerHTML = newHtml;
+    return;
+  }
+
+  clearTimeout(previewQaTransitionTimer);
+  clearTimeout(previewQaResetHeightTimer);
+
+  qaText.classList.add('fade-out');
+
+  previewQaTransitionTimer = setTimeout(() => {
+    const startHeight = qaContent.offsetHeight;
+    qaContent.style.height = startHeight + 'px';
+
+    qaText.innerHTML = newHtml;
+
+    qaContent.style.height = 'auto';
+    const targetHeight = qaContent.offsetHeight;
+    qaContent.style.height = startHeight + 'px';
+
+    void qaContent.offsetHeight;
+
+    qaContent.style.height = targetHeight + 'px';
+    qaText.classList.remove('fade-out');
+
+    previewQaResetHeightTimer = setTimeout(() => {
+      qaContent.style.height = '';
+    }, 420);
+  }, 160);
+}
+
   const previewQaOverlay = $("previewQaOverlay");
   const previewQaText = $("previewQaText");
-  if (previewQaOverlay && previewQaText) {
+  const previewQaContent = previewQaOverlay ? previewQaOverlay.querySelector(".qa-content") : null;
+  if (previewQaOverlay && previewQaText && previewQaContent) {
     const isQaVisible = state.qaVisible !== false && state.activeQa != null;
     previewQaOverlay.classList.toggle("hidden", !isQaVisible);
     
     if (state.qaList && state.activeQa) {
       const q = state.qaList.find((item) => item.id === state.activeQa);
       if (q) {
-        previewQaText.textContent = q.question;
+        const isSwitching = isQaVisible && previewLastQaVisible && state.activeQa !== previewLastActiveQa && previewLastActiveQa != null;
+        updatePreviewQaTextWithTransition(previewQaContent, previewQaText, renderFormattedText(q.question), isSwitching);
       }
     }
+
+    previewLastActiveQa = state.activeQa;
+    previewLastQaVisible = isQaVisible;
     
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
@@ -1249,6 +1297,158 @@ document.querySelectorAll(".qa-btn").forEach((btn) => {
   });
 });
 
+function renderFormattedText(str) {
+  if (!str) return "";
+  let html = String(str).replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const allowed = new Set(['B', 'STRONG', 'SPAN', 'FONT', 'I', 'EM', 'BR', 'DIV', 'P']);
+    function clean(node) {
+      for (const child of Array.from(node.childNodes)) {
+        if (child.nodeType === Node.ELEMENT_NODE) {
+          const tag = child.tagName.toUpperCase();
+          if (!allowed.has(tag)) {
+            node.replaceChild(doc.createTextNode(child.textContent), child);
+            continue;
+          }
+          for (const attr of Array.from(child.attributes)) {
+            const name = attr.name.toLowerCase();
+            if (tag === 'FONT' && (name === 'color' || name === 'size')) continue;
+            if (name === 'style') {
+              const color = child.style.color;
+              const weight = child.style.fontWeight;
+              const size = child.style.fontSize;
+              child.removeAttribute('style');
+              if (color) child.style.color = color;
+              if (weight) child.style.fontWeight = weight;
+              if (size) child.style.fontSize = size;
+              continue;
+            }
+            child.removeAttribute(attr.name);
+          }
+          clean(child);
+        }
+      }
+    }
+    clean(doc.body);
+    return doc.body.innerHTML;
+  } catch (_e) {
+    return String(str);
+  }
+}
+
+// Track selection in QA edit boxes
+let lastQaRange = null;
+function saveQaSelection() {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) {
+    const range = sel.getRangeAt(0);
+    const node = range.commonAncestorContainer;
+    const parentBox = node.nodeType === 1 ? node.closest('.qa-edit-box') : node.parentElement?.closest('.qa-edit-box');
+    if (parentBox) {
+      lastQaRange = range.cloneRange();
+    }
+  }
+}
+
+function restoreQaSelection() {
+  if (lastQaRange) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(lastQaRange);
+  }
+}
+
+function applyQaFormat(command, value = null) {
+  restoreQaSelection();
+  document.execCommand(command, false, value);
+  saveQaSelection();
+}
+
+function getSelectedFontSize() {
+  restoreQaSelection();
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return 3;
+  let node = sel.anchorNode;
+  if (node && node.nodeType === 3) node = node.parentElement;
+  const fontEl = node ? node.closest('font[size]') : null;
+  if (fontEl) {
+    return parseInt(fontEl.getAttribute('size'), 10) || 3;
+  }
+  return 3;
+}
+
+document.addEventListener('selectionchange', saveQaSelection);
+
+const qaBoldBtn = $("qaBoldBtn");
+if (qaBoldBtn) {
+  qaBoldBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  qaBoldBtn.addEventListener('click', () => applyQaFormat('bold'));
+}
+
+const qaDecreaseFontBtn = $("qaDecreaseFontBtn");
+if (qaDecreaseFontBtn) {
+  qaDecreaseFontBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  qaDecreaseFontBtn.addEventListener('click', () => {
+    restoreQaSelection();
+    let current = getSelectedFontSize();
+    let next = Math.max(1, current - 1);
+    applyQaFormat('fontSize', String(next));
+    const select = $("qaSizeSelect");
+    if (select) select.value = String(next);
+  });
+}
+
+const qaIncreaseFontBtn = $("qaIncreaseFontBtn");
+if (qaIncreaseFontBtn) {
+  qaIncreaseFontBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  qaIncreaseFontBtn.addEventListener('click', () => {
+    restoreQaSelection();
+    let current = getSelectedFontSize();
+    let next = Math.min(7, current + 1);
+    applyQaFormat('fontSize', String(next));
+    const select = $("qaSizeSelect");
+    if (select) select.value = String(next);
+  });
+}
+
+const qaSizeSelect = $("qaSizeSelect");
+if (qaSizeSelect) {
+  qaSizeSelect.addEventListener('change', () => {
+    applyQaFormat('fontSize', qaSizeSelect.value);
+  });
+}
+
+document.querySelectorAll('.qa-color-btn').forEach((btn) => {
+  btn.addEventListener('mousedown', (e) => e.preventDefault());
+  btn.addEventListener('click', () => {
+    const color = btn.dataset.color;
+    if (color) applyQaFormat('foreColor', color);
+  });
+});
+
+const qaCustomColorPicker = $("qaCustomColorPicker");
+if (qaCustomColorPicker) {
+  qaCustomColorPicker.addEventListener('change', () => {
+    applyQaFormat('foreColor', qaCustomColorPicker.value);
+  });
+}
+
+const qaClearFormatBtn = $("qaClearFormatBtn");
+if (qaClearFormatBtn) {
+  qaClearFormatBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  qaClearFormatBtn.addEventListener('click', () => applyQaFormat('removeFormat'));
+}
+
+document.querySelectorAll('.qa-edit-box').forEach((box) => {
+  box.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  });
+});
+
 const editQaBtn = $("editQaBtn");
 if (editQaBtn) {
   editQaBtn.addEventListener("click", () => {
@@ -1262,8 +1462,12 @@ if (editQaBtn) {
       const input = $("qaInput" + i);
       const qObj = state.qaList?.find((q) => q.id === i);
       if (input) {
-        input.value = qObj ? qObj.question : "";
-        setTimeout(() => autoResizeTextarea(input), 0);
+        if (input.isContentEditable) {
+          input.innerHTML = qObj ? qObj.question : "";
+        } else {
+          input.value = qObj ? qObj.question : "";
+          setTimeout(() => autoResizeTextarea(input), 0);
+        }
       }
     }
   });
@@ -1291,7 +1495,15 @@ if (saveQaBtn) {
     const qaList = [];
     for (let i = 1; i <= 4; i++) {
       const input = $("qaInput" + i);
-      qaList.push({ id: i, question: input ? input.value : "" });
+      let val = "";
+      if (input) {
+        if (input.isContentEditable) {
+          val = input.innerText.trim() === "" ? "" : input.innerHTML.trim();
+        } else {
+          val = input.value;
+        }
+      }
+      qaList.push({ id: i, question: val });
     }
     
     socket.emit("overlay:saveQa", { qaList }, (res) => {

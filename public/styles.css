@@ -2028,13 +2028,16 @@ textarea.input.auto-expand {
 }
 
 .qa-content {
-  background: white;
-  border-radius: 16px;
-  padding: 40px 50px 30px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 22px 32px 24px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
   position: relative;
+  z-index: 2;
   transform: translateX(0);
-  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), height 0.38s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .qa-content::after {
@@ -2043,9 +2046,9 @@ textarea.input.auto-expand {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 6px;
-  background: linear-gradient(135deg, #a78bfa, #38bdf8);
-  border-radius: 0 0 16px 16px;
+  height: 5px;
+  background: linear-gradient(90deg, #7042f4 0%, #38bdf8 100%);
+  border-radius: 0 0 20px 20px;
 }
 
 .qa-overlay.hidden .qa-content {
@@ -2055,43 +2058,209 @@ textarea.input.auto-expand {
 
 .qa-badge {
   position: absolute;
-  top: -30px;
-  left: 36px;
-  background: linear-gradient(135deg, #a78bfa, #38bdf8);
-  color: white;
+  top: -46px;
+  left: 0;
+  background: linear-gradient(90deg, #7042f4 0%, #38bdf8 100%);
+  color: #ffffff;
   font-weight: 800;
-  font-size: 40px;
-  padding: 10px 36px;
-  border-radius: 14px;
-  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
-  z-index: 2;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  padding: 9px 34px 26px 24px;
+  border-radius: 18px 18px 0 0;
+  box-shadow: none;
+  z-index: 1;
   transform: translateX(0);
   transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .qa-overlay.hidden .qa-badge {
-  position: absolute;
-  top: -30px;
-  left: 36px;
-  background: linear-gradient(135deg, #a78bfa, #38bdf8);
-  color: white;
-  font-weight: 800;
-  font-size: 40px;
-  padding: 10px 36px;
-  border-radius: 14px;
-  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.4);
-  z-index: 2;
-  transform: translateX(0);
-  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  transform: translateX(-100%);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.8, 1);
 }
 
 .qa-text {
-  font-size: 48px;
+  font-size: 46px;
   color: #1e293b;
-  line-height: 1.55;
+  line-height: 1.35;
   font-weight: 500;
   word-wrap: break-word;
   white-space: pre-wrap;
+  letter-spacing: -0.2px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.qa-text.fade-out {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.qa-text b,
+.qa-text strong {
+  font-weight: 800;
+}
+
+/* QA Rich Text Toolbar */
+.qa-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+}
+.qa-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qa-toolbar-divider {
+  width: 1px;
+  height: 22px;
+  background: #cbd5e1;
+  margin: 0 4px;
+}
+.qa-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.qa-tool-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+.qa-tool-btn:active {
+  transform: scale(0.96);
+}
+.qa-size-btn {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 6px;
+  min-width: 30px;
+}
+.qa-size-select {
+  height: 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  padding: 0 6px;
+  cursor: pointer;
+  outline: none;
+}
+.qa-size-select:focus {
+  border-color: #3b82f6;
+}
+
+/* Font size levels */
+.qa-edit-box font[size="1"], .qa-text font[size="1"] { font-size: 0.75em; }
+.qa-edit-box font[size="2"], .qa-text font[size="2"] { font-size: 0.88em; }
+.qa-edit-box font[size="3"], .qa-text font[size="3"] { font-size: 1em; }
+.qa-edit-box font[size="4"], .qa-text font[size="4"] { font-size: 1.18em; }
+.qa-edit-box font[size="5"], .qa-text font[size="5"] { font-size: 1.35em; }
+.qa-edit-box font[size="6"], .qa-text font[size="6"] { font-size: 1.55em; }
+.qa-edit-box font[size="7"], .qa-text font[size="7"] { font-size: 1.8em; }
+.qa-tool-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-right: 2px;
+}
+.qa-color-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.qa-color-btn:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+.qa-color-picker-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.qa-color-picker-wrap input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+.qa-color-picker-dot {
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  user-select: none;
+}
+.qa-color-picker-wrap:hover .qa-color-picker-dot {
+  background: #f1f5f9;
+}
+.qa-clear-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 0 10px;
+}
+.qa-toolbar-hint {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.qa-edit-box {
+  min-height: 52px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  outline: none;
+  background: #ffffff;
+  color: #1e293b;
+  word-break: break-word;
+  white-space: pre-wrap;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.qa-edit-box:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+.qa-edit-box:empty:before {
+  content: attr(placeholder);
+  color: #94a3b8;
+  pointer-events: none;
 }
 
 /* Emoji Reaction Bar (Under timer in control panel) */
