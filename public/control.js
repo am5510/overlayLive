@@ -29,6 +29,49 @@ let pendingProjectLogoData = "";
 let pendingProjectLogoName = "";
 let editingProfileId = null;
 let editingProjectId = null;
+
+let previewLastActiveQa = null;
+let previewLastQaVisible = false;
+let previewQaTransitionTimer = null;
+let previewQaResetHeightTimer = null;
+
+function updatePreviewQaTextWithTransition(qaContent, qaText, newHtml, isSwitching) {
+  if (!qaContent || !qaText) return;
+
+  if (!isSwitching) {
+    clearTimeout(previewQaTransitionTimer);
+    clearTimeout(previewQaResetHeightTimer);
+    qaContent.style.height = '';
+    qaText.classList.remove('fade-out');
+    qaText.innerHTML = newHtml;
+    return;
+  }
+
+  clearTimeout(previewQaTransitionTimer);
+  clearTimeout(previewQaResetHeightTimer);
+
+  qaText.classList.add('fade-out');
+
+  previewQaTransitionTimer = setTimeout(() => {
+    const startHeight = qaContent.offsetHeight;
+    qaContent.style.height = startHeight + 'px';
+
+    qaText.innerHTML = newHtml;
+
+    qaContent.style.height = 'auto';
+    const targetHeight = qaContent.offsetHeight;
+    qaContent.style.height = startHeight + 'px';
+
+    void qaContent.offsetHeight;
+
+    qaContent.style.height = targetHeight + 'px';
+    qaText.classList.remove('fade-out');
+
+    previewQaResetHeightTimer = setTimeout(() => {
+      qaContent.style.height = '';
+    }, 420);
+  }, 160);
+}
 function bindPeopleEvents() {
   document.querySelectorAll(".person-content").forEach(
     (b) =>
@@ -474,48 +517,6 @@ function paint(s) {
     liveToggleLabel.textContent = liveOn ? "ON" : "OFF";
   }
 
-let previewLastActiveQa = null;
-let previewLastQaVisible = false;
-let previewQaTransitionTimer = null;
-let previewQaResetHeightTimer = null;
-
-function updatePreviewQaTextWithTransition(qaContent, qaText, newHtml, isSwitching) {
-  if (!qaContent || !qaText) return;
-
-  if (!isSwitching) {
-    clearTimeout(previewQaTransitionTimer);
-    clearTimeout(previewQaResetHeightTimer);
-    qaContent.style.height = '';
-    qaText.classList.remove('fade-out');
-    qaText.innerHTML = newHtml;
-    return;
-  }
-
-  clearTimeout(previewQaTransitionTimer);
-  clearTimeout(previewQaResetHeightTimer);
-
-  qaText.classList.add('fade-out');
-
-  previewQaTransitionTimer = setTimeout(() => {
-    const startHeight = qaContent.offsetHeight;
-    qaContent.style.height = startHeight + 'px';
-
-    qaText.innerHTML = newHtml;
-
-    qaContent.style.height = 'auto';
-    const targetHeight = qaContent.offsetHeight;
-    qaContent.style.height = startHeight + 'px';
-
-    void qaContent.offsetHeight;
-
-    qaContent.style.height = targetHeight + 'px';
-    qaText.classList.remove('fade-out');
-
-    previewQaResetHeightTimer = setTimeout(() => {
-      qaContent.style.height = '';
-    }, 420);
-  }, 160);
-}
 
   const previewQaOverlay = $("previewQaOverlay");
   const previewQaText = $("previewQaText");

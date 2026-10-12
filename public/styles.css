@@ -2007,9 +2007,13 @@ textarea.input.auto-expand {
   position: absolute;
   left: calc(77px * var(--stage-scale, 1));
   bottom: calc(48px * var(--stage-scale, 1));
+  top: calc((50px + 46px) * var(--stage-scale, 1));
   width: 1766px;
   transform: scale(var(--stage-scale, 1));
   transform-origin: left bottom;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   z-index: 15;
   pointer-events: none;
   clip-path: polygon(-10% -50%, 110% -50%, 110% 150%, -10% 150%);
@@ -2038,6 +2042,8 @@ textarea.input.auto-expand {
   transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1), height 0.38s cubic-bezier(0.25, 1, 0.5, 1);
   overflow: hidden;
   box-sizing: border-box;
+  height: 100%;
+  max-height: 100%;
 }
 
 .qa-content::after {
